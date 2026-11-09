@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Election Information Observatory - New Mexico 2026</title>
+<style>
+:root{--bg:#fff;--fg:#14181f;--mut:#4b5563;--line:#cfd6e0;--card:#f6f8fb;--acc:#0b4f9c;--warn:#8a4b00;--warnbg:#fff4de;--bad:#9b1c1c;--badbg:#fde8e8;--ok:#14532d;--okbg:#e3f6e8}
+@media (prefers-color-scheme:dark){:root{--bg:#10141b;--fg:#e8edf4;--mut:#a3adbd;--line:#2c3544;--card:#171d27;--acc:#7db4ff;--warn:#ffd08a;--warnbg:#3a2a0c;--bad:#ffb4b4;--badbg:#3d1414;--ok:#9be3b2;--okbg:#10321c}}
+body.hc{--bg:#000;--fg:#fff;--mut:#fff;--line:#fff;--card:#000;--acc:#ff0}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.45 system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--fg)}
+a{color:var(--acc)}
+.banner{background:var(--warnbg);color:var(--warn);border-bottom:2px solid var(--warn);padding:6px 12px;font-weight:700;text-align:center}
+header,main{max-width:1200px;margin:0 auto;padding:0 12px}
+h1{font-size:20px;margin:10px 0 2px}
+.status{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:8px 0}
+.status div{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.status b{display:block;font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+.pill{display:inline-block;border-radius:10px;padding:0 8px;font-size:12px;font-weight:700;border:1px solid currentColor}
+.pill.ok{color:var(--ok);background:var(--okbg)}.pill.bad{color:var(--bad);background:var(--badbg)}.pill.warn{color:var(--warn);background:var(--warnbg)}
+.timeline{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:8px 0}
+.timeline .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0}
+.timeline input[type=range]{flex:1;min-width:200px}
+button,select,input[type=search]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:4px 9px}
+button{cursor:pointer}button[aria-pressed=true],button.on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+nav[role=tablist]{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0;border-bottom:1px solid var(--line)}
+nav button{border-radius:5px 5px 0 0;border-bottom:none}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.card h3{margin:0;font-size:15px}.card .sub{color:var(--mut);font-size:12px}
+.cand{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-top:6px;font-size:14px}
+.bar{grid-column:1/-1;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc)}
+.lead{font-weight:700}
+table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:left;font-size:13px;vertical-align:top}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+dialog{max-width:900px;width:95%;background:var(--bg);color:var(--fg);border:2px solid var(--line);border-radius:8px}
+dialog::backdrop{background:#0008}
+.mut{color:var(--mut)}.small{font-size:12px}
+.notice{background:var(--warnbg);color:var(--warn);padding:6px 10px;border-radius:6px;margin:6px 0}
+[hidden]{display:none!important}
+:root{--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--s7:#6250d6;--s8:#e34948}
+@media (prefers-color-scheme:dark){:root{--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--s7:#9085e9;--s8:#e66767}}
+.tc{position:relative;margin:4px 0 12px}
+.tc svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.tc .grid{stroke:var(--line);stroke-width:1}.tc .axis{fill:var(--mut);font-size:11px}
+.tc .legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:2px 0 4px;font-size:12px}
+.tc .legend i{display:inline-block;width:16px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
+.tc .tip{position:absolute;pointer-events:none;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:12px;box-shadow:0 2px 8px #0003;z-index:3;min-width:150px}
+.tc .tip b{font-variant-numeric:tabular-nums}.tc .tip .k{display:inline-block;width:12px;border-top:2px solid;margin-right:6px;vertical-align:middle}
+.tc .modes{display:flex;gap:4px;margin:2px 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{min-width:54px;text-align:center;font-weight:700;border-width:2px}
+.chip.ok{color:var(--ok);background:var(--okbg)}.chip.warn{color:var(--warn);background:var(--warnbg)}.chip.bad{color:var(--bad);background:var(--badbg)}.chip.none{color:var(--mut);background:var(--card);border-style:dashed}
+code{font-size:12px;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="banner" role="note">UNOFFICIAL RESULTS &mdash; preliminary returns, subject to canvass and certification. Differences between views may reflect timing or scope, not error.</div>
+<header>
+  <h1>Election Information Observatory <span class="mut small" id="subtitle">General Election, 2026-11-03</span></h1>
+  <div class="row small" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0">
+    <label for="elsel"><b>Election</b></label>
+    <select id="elsel" aria-label="Choose an election or jurisdiction" style="min-width:300px"></select>
+    <span id="elnote" class="mut"></span>
+  </div>
+  <div class="status" id="status" aria-live="polite"></div>
+  <section class="timeline" aria-label="Timeline" id="timeline">
+    <div class="row">
+      <button id="btnLive" aria-pressed="true">Live</button>
+      <button id="prev" title="Previous observation">&laquo; Prev</button>
+      <input id="slider" type="range" min="0" max="0" value="0" aria-label="Observation time">
+      <button id="next" title="Next observation">Next &raquo;</button>
+    </div>
+    <div class="row small">
+      Jump: <button data-j="-60">-1h</button><button data-j="-15">-15m</button><button data-j="-5">-5m</button>
+      <button data-j="5">+5m</button><button data-j="15">+15m</button><button data-j="60">+1h</button>
+      <span id="viewing" class="mut" style="margin-left:auto"></span>
+      <button id="hc" aria-pressed="false">High contrast</button>
+    </div>
+    <div id="tlwarn"></div>
+  </section>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main id="main" tabindex="-1"></main>
+<dialog id="dlg"><div id="dlgBody"></div><p><button id="dlgClose">Close</button></p></dialog>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => n == null ? "-" : Number(n).toLocaleString();
+const J = async u => { const r = await fetch(u); if (!r.ok) throw new Error(u + " -> " + r.status); return r.json(); };
+const mt = iso => iso ? new Date(iso).toLocaleString("en-US", {timeZone:"America/Denver", month:"short", day:"numeric", hour:"numeric", minute:"2-digit", second:"2-digit"}) + " MT" : "-";
+const utc = iso => iso ? iso.replace("T"," ").replace(/\.\d+Z$/,"Z") : "-";
+
+const S = {tab:"races", times:[], idx:0, live:true, election:null, contests:null, filter:"", cat:"all", onlyVotes:false, interval:15,
+           sel:(location.hash||"").slice(1) || "overview", jurs:[]};
+const TABS = [["races","Races"],["changes","What Changed"],["coverage","Coverage"],["sources","Source Health"],["archive","Archive & Evidence"],["about","About the Data"]];
+
+/* ---- shared notices (addenda 001-003: say what we could and could not observe; no false certainty) ---- */
+function obsNotice(obs){
+  if (!obs) return "";
+  let h = "";
+  const bad = !["OBSERVED_CHANGED","OBSERVED_UNCHANGED"].includes(obs.status);
+  if (bad) h += `<div class="notice" role="alert"><b>Observation gap:</b> the latest collection attempt is <b>${esc(obs.status)}</b>${obs.attempt_failure?` (${esc(obs.attempt_failure)})`:""}
+     ${obs.unobserved_since_utc?`since ${esc(mt(obs.unobserved_since_utc))}`:""}. Values below come from the last good observation at <b>${esc(mt(obs.last_good_observation_utc))}</b>;
+     they are <b>not</b> confirmed current. A gap is not the same as "unchanged".</div>`;
+  if (obs.recent_byte_versions > obs.recent_result_versions && obs.recent_result_versions >= 1)
+    h += `<div class="notice small">The source served ${obs.recent_byte_versions} byte-different presentations carrying ${obs.recent_result_versions} distinct result state(s) recently
+     (differences were in descriptive text only, e.g. ballot-question wording). All versions are preserved; only result changes are treated as timeline events.</div>`;
+  return h;
+}
+function evBadge(ev){
+  if (!ev) return "";
+  const cls = ["E3","E4"].includes(ev.level) ? "ok" : ev.level==="E2" ? "warn" : "bad";
+  return `<span class="pill ${cls}" title="${esc(ev.claim)}">Evidence ${esc(ev.level)} ${esc(ev.name)}${ev.anchor_count!=null?` · ${ev.anchor_count} anchor(s)`:""}</span>`;
+}
+const MISSING = {NOT_PUBLISHED:"not published", ZERO:"0", VALUE:""};
+
+function asOf(){ return S.live ? null : S.times[S.idx]; }
+
+function category(c){
+  const t = (c.title||"").toLowerCase();
+  if (/united states/.test(t)) return "Federal";
+  if (/governor|lieutenant|secretary of state|attorney general|treasurer|auditor|land commissioner|constitutional amendment|bond|question/.test(t) && !/county|municipal|school/.test(t)) return "Statewide";
+  if (/state (representative|senator)/.test(t)) return "Legislative";
+  if (/judge|justice|court/.test(t)) return "Judicial";
+  if (/public education/.test(t)) return "Education";
+  return "Local / other";
+}
+
+function tabs(){
+  const nav = $("#tabs"); nav.innerHTML = "";
+  for (const [id,label] of TABS){
+    const b = document.createElement("button"); b.textContent = label; b.setAttribute("role","tab");
+    b.setAttribute("aria-selected", S.tab===id); b.className = S.tab===id ? "on" : "";
+    b.onclick = () => { S.tab = id; tabs(); render(); }; nav.appendChild(b);
+  }
+}
+
+async function loadStatus(){
+  const [e, h] = await Promise.all([J("/api/elections/nm-2026-general"), J("/api/sources/health")]);
+  S.election = e;
+  const deg = h.filter(x => x.state==="DEGRADED");
+  const stamp = e.last_official_displayed_update;
+  const sh = deg.length ? `<span class="pill bad">DEGRADED: ${deg.length} of ${h.length} sources</span>` : `<span class="pill ok">OK: ${h.length} of ${h.length} sources</span>`;
+  $("#status").innerHTML = `
+    <div><b>Status</b><span class="pill warn">UNOFFICIAL</span></div>
+    <div><b>Now</b>${esc(new Date().toLocaleTimeString("en-US",{timeZone:"America/Denver"}))} MT / ${esc(new Date().toISOString().slice(11,19))}Z</div>
+    <div><b>Last official update shown by source</b>${esc(stamp ? stamp.displayed_text : "-")}</div>
+    <div><b>Last successful collection</b>${esc(mt(e.last_successful_collection_utc))}</div>
+    <div><b>Source health</b>${sh}</div>
+    <div><b>Data changes observed</b>${fmt(e.observation_count)}</div>`;
+  if (e.recent_alerts && e.recent_alerts.length && deg.length===0 && false) {}
+}
+
+async function loadTimes(){
+  const r = await J("/api/observation-times");
+  const was = S.times.length;
+  S.times = r.times;
+  const sl = $("#slider"); sl.max = Math.max(0, S.times.length-1);
+  if (S.live) { S.idx = S.times.length-1; sl.value = S.idx; }
+}
+
+function setViewing(){
+  const v = $("#viewing"), w = $("#tlwarn");
+  $("#btnLive").setAttribute("aria-pressed", S.live);
+  if (!S.times.length){ v.textContent = "No observations yet"; return; }
+  v.textContent = S.live ? "Showing: latest known state" : `Showing: state known at ${mt(S.times[S.idx])} (${utc(S.times[S.idx])})`;
+  w.innerHTML = S.live ? "" : `<div class="notice">Historical view. Only information acquired at or before this time is shown; nothing later is used.</div>`;
+}
+
+async function render(){
+  const nm = S.sel === "NM";
+  $("#timeline").hidden = !nm; $("#tabs").hidden = !nm;
+  const m = $("#main");
+  try {
+    if (S.sel === "overview") await rOverview(m);
+    else if (S.sel === "news") await rNews(m);
+    else if (!nm) await rJur(m, S.sel);
+    else { setViewing(); await ({races:rRaces,changes:rChanges,coverage:rCoverage,sources:rSources,archive:rArchive,about:rAbout})[S.tab](m); }
+  }
+  catch(e){ m.innerHTML = `<div class="notice">Could not load: ${esc(e.message)}</div>`; }
+}
+
+/* ---- election selector: one view at a time; nothing from a previously selected election stays on screen ---- */
+const COLL = {OK:["ok","collecting"], PARTIAL:["warn","partly collecting"], DEGRADED:["bad","degraded"], NOT_YET_POLLED:["warn","not polled yet"], NO_SOURCE:["none","no source yet"]};
+async function loadJurs(){
+  S.jurs = await J("/api/jurisdictions");
+  const sel = $("#elsel"), want = S.sel;
+  const grp = (label, items) => items.length ? `<optgroup label="${esc(label)}">${items.map(j=>`<option value="${esc(j.jurisdiction)}">${esc(j.jurisdiction)} &mdash; ${esc(j.name)}</option>`).join("")}</optgroup>` : "";
+  const nm = S.jurs.filter(j=>j.jurisdiction==="NM"), ent = S.jurs.filter(j=>j.jurisdiction!=="NM" && j.sources>0), none = S.jurs.filter(j=>j.sources===0);
+  sel.innerHTML = `<option value="overview">All elections &mdash; overview</option>` +
+     grp("Results tracked contest by contest", nm) + grp("Entry pages archived only (no results parsed)", ent) + grp("No source yet", none) +
+     `<optgroup label="Context (not results)"><option value="news">News &mdash; election reporting and press releases</option></optgroup>`;
+  sel.value = want;
+  if (sel.value !== want) { S.sel = "overview"; sel.value = "overview"; }
+  const j = S.jurs.find(x=>x.jurisdiction===S.sel);
+  $("#subtitle").textContent = S.sel==="news" ? "News and press context · 2026-11-03" : j ? `${j.name} · 2026-11-03` : "All elections · 2026-11-03";
+  $("#elnote").textContent = S.sel==="news" ? "media reporting; not results" : j ? (j.jurisdiction==="NM" ? "full contest-level tracking" : "page captures only; results are not parsed") : `${S.jurs.length} jurisdictions`;
+}
+function choose(v){ S.sel = v; history.replaceState(null, "", v==="overview" ? location.pathname : "#"+v); $("#elsel").value = v; tabs();
+  Promise.all([loadJurs(), v==="NM" ? loadTimes() : null]).then(()=>{ render(); $("#main").focus(); }); }
+
+async function rOverview(m){
+  const js = S.jurs;
+  const n = k => js.filter(j=>j.collection===k).length;
+  m.innerHTML = `<div class="notice small"><b>Read this first.</b> Only New Mexico has results parsed contest by contest. Every other chip is an archived entry page whose
+     official status is unverified; there are no national vote counts, seat totals or control calls.</div>
+   <div class="status">
+     <div><b>Elections / jurisdictions</b>${js.length}</div><div><b>Results tracked</b>${js.filter(j=>j.results_parsed).length}</div>
+     <div><b>Entry page collecting</b>${n("OK")+n("PARTIAL")}</div><div><b>Degraded / not polled</b>${n("DEGRADED")+n("NOT_YET_POLLED")}</div><div><b>No source yet</b>${n("NO_SOURCE")}</div></div>
+   <p class="small mut">Choose an election to see only that one. Solid = collecting, dashed = nothing is being collected.</p>
+   <div class="chips">${js.map(j=>{ const c = COLL[j.collection]; return `<button class="chip ${c[0]}" data-jur="${esc(j.jurisdiction)}" title="${esc(j.name)}: ${esc(c[1])}${j.results_parsed?", results parsed":""}">${esc(j.jurisdiction)}</button>`; }).join("")}</div>`;
+  m.insertAdjacentHTML("beforeend", `<p><button id="gonews">News &amp; press releases (context only) &raquo;</button></p>`);
+  $("#gonews").onclick = () => choose("news");
+  m.querySelectorAll(".chip").forEach(b => b.onclick = () => choose(b.dataset.jur));
+}
+
+const N = {all:false, kind:"", source:"", q:""};
+async function rNews(m){
+  const qs = new URLSearchParams({limit:"100", election_only:String(!N.all)});
+  if (N.kind) qs.set("kind", N.kind); if (N.source) qs.set("source", N.source); if (N.q) qs.set("q", N.q);
+  const [d, srcs] = await Promise.all([J("/api/news?" + qs), J("/api/news/sources")]);
+  const safe = u => /^https?:\/\//i.test(u||"") ? u : null;
+  m.innerHTML = `<div class="notice small" role="note"><b>Context only.</b> ${esc(d.notice)}</div>
+   <div class="row small" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0">
+     <input type="search" id="nq" placeholder="Search headlines" value="${esc(N.q)}" aria-label="Search headlines">
+     <select id="nk" aria-label="Kind"><option value="">All sources</option><option value="official" ${N.kind==="official"?"selected":""}>Official press releases</option><option value="media" ${N.kind==="media"?"selected":""}>News media</option></select>
+     <select id="ns" aria-label="Outlet"><option value="">All outlets</option>${srcs.map(s=>`<option value="${esc(s.source_id)}" ${N.source===s.source_id?"selected":""}>${esc(s.outlet)} (${s.election_items})</option>`).join("")}</select>
+     <label><input type="checkbox" id="na" ${N.all?"checked":""}> include items without election keywords</label>
+     <span class="mut">${d.items.length} shown &middot; ${srcs.filter(s=>s.state==="OK").length} of ${srcs.length} feeds healthy</span></div>
+   ${d.items.length ? d.items.map(i=>`<div class="card" style="margin-bottom:8px"><div class="small"><span class="pill ${i.kind==="official"?"ok":"warn"}">${i.kind==="official"?"OFFICIAL PRESS":"MEDIA"}</span>
+       ${esc(i.outlet)} &middot; ${i.published_utc?`published ${esc(mt(i.published_utc))}`:`first seen ${esc(mt(i.first_seen_utc))} <span class="mut">(feed gave no usable time)</span>`}</div>
+     <h3 style="margin:4px 0">${safe(i.link)?`<a href="${esc(safe(i.link))}" target="_blank" rel="noopener noreferrer">${esc(i.title)}</a>`:esc(i.title)}</h3>
+     ${i.summary?`<div class="small">${esc(i.summary)}</div>`:""}</div>`).join("") : `<p class="mut">No matching items yet.</p>`}
+   <p class="small mut">Headline, link and a short snippet only; the full feed captures are archived with timestamps. "Election-related" is a keyword match, not a judgment of accuracy or relevance. Headlines are the outlets' own and may later be edited; edits are kept as separate versions.</p>`;
+  $("#nq").oninput = e => { N.q = e.target.value; rNews(m).then(()=>{ const x=$("#nq"); x.focus(); x.setSelectionRange(x.value.length,x.value.length); }); };
+  $("#nk").onchange = e => { N.kind = e.target.value; rNews(m); };
+  $("#ns").onchange = e => { N.source = e.target.value; rNews(m); };
+  $("#na").onchange = e => { N.all = e.target.checked; rNews(m); };
+}
+
+async function rJur(m, code){
+  const d = await J("/api/jurisdictions/" + encodeURIComponent(code));
+  const ak = code === "AK" ? await J("/api/results/AK") : null;
+  const akHtml = !ak ? "" : !ak.available ? `<div class="notice">${esc(ak.reason)}</div>` : `
+    <h3>Federal and governor races <span class="pill warn">UNOFFICIAL · DERIVED</span></h3>
+    <div class="small mut">From archived capture #${ak.acquisition_id} (${esc(mt(ak.captured_utc))}; file last modified ${esc(ak.source_last_modified||"unknown")}) &middot;
+      <a href="${esc(ak.raw_url)}">download the exact CSV</a></div>
+    <ul class="small">${ak.caveats.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>
+    <div class="cards">${ak.contests.map(c=>{ const mx = Math.max(1, ...c.candidates.map(x=>x.votes));
+      return `<div class="card"><h3>${esc(c.title)}</h3>
+        <div class="sub">${fmt(c.total_votes)} votes &middot; precincts flagged reporting by source: ${fmt(c.precincts_flagged_reporting)} of ${fmt(c.precincts_total)}</div>
+        <div class="cand">${c.candidates.map(x=>`<span>${esc(x.name)}${x.party?` <span class="mut">(${esc(x.party)})</span>`:""}</span><span class="n">${fmt(x.votes)}${x.pct!=null?` &middot; ${x.pct.toFixed(1)}%`:""}</span>
+          <span class="bar" aria-hidden="true"><i style="width:${100*x.votes/mx}%"></i></span>`).join("")}</div>
+        ${c.total_votes===0?`<div class="small mut">No votes reported yet.</div>`:""}</div>`; }).join("")}</div>`;
+  m.innerHTML = `<p><button id="back">&laquo; All elections</button></p>
+   <h2 style="margin:4px 0">${esc(d.name)} <span class="mut small">${esc(d.jurisdiction)}</span></h2>
+   <div class="notice small">${esc(d.note)}</div>
+   <table><tbody><tr><th>Federal contests expected</th><td>${esc(d.federal_coverage.replace(/,/g,", "))} <span class="mut small">(per matrix; not enumerated per contest)</span></td></tr>
+     <tr><th>Source research status</th><td>${esc(d.matrix_status.replace(/_/g," "))}</td></tr><tr><th>Results parsed</th><td>${d.results_parsed?"yes":"no"}</td></tr></tbody></table>
+   ${akHtml}
+   ${d.sources.map(s=>{ const h = s.health;
+     return `<div class="card" style="margin-top:10px"><h3>${esc(h.source_name)}</h3>
+      <div class="small"><code>${esc(s.url)}</code></div>
+      <div class="small" style="margin-top:4px"><span class="pill ${h.state==="OK"?"ok":h.state==="DEGRADED"?"bad":"warn"}">${esc(h.state)}</span>
+        ${s.latest_evidence?evBadge(s.latest_evidence):""} every ${esc(h.interval_s)}s · ${fmt(h.polls)} polls · ${fmt(h.errors)} errors · ${fmt(h.changes)} content changes</div>
+      <div class="small mut">Last success ${esc(mt(h.last_success_utc))} · last change ${esc(mt(h.last_change_utc))} · ${esc(s.publication_status||"")}</div>
+      <div class="small mut">Classification: ${esc((s.classification||[]).join(", "))} · ${esc(h.terms_review_status)}</div>
+      ${s.latest_acquisition_id?`<div class="small" style="margin-top:4px"><a href="/api/artifacts/${s.latest_acquisition_id}/raw" target="_blank" rel="noopener">Latest archived capture (#${s.latest_acquisition_id}, ${fmt(s.latest_bytes)} bytes)</a></div>`:""}
+      <details class="small"><summary>Last ${s.recent.length} polls</summary><table><tbody>${s.recent.map(r=>`<tr><td>#${r.acquisition_id}</td><td>${esc(mt(r.at))}</td><td>${r.error_class?esc(r.error_class):esc(r.http_status)}</td><td>${r.changed?"changed":""}</td></tr>`).join("")}</tbody></table></details></div>`; }).join("")}`;
+  $("#back").onclick = () => choose("overview");
+}
+$("#elsel").onchange = e => choose(e.target.value);
+
+async function fetchContests(){
+  const r = await J("/api/elections/nm-2026-general/contests" + (asOf() ? "?as_of="+encodeURIComponent(asOf()) : ""));
+  S.contests = r; return r;
+}
+
+async function rRaces(m){
+  const r = await fetchContests();
+  if (r.no_observation){ m.innerHTML = `<div class="notice">No source observation exists at or before the selected time.</div>`; return; }
+  const cats = ["all", ...new Set(r.contests.map(category))].sort();
+  let list = r.contests.filter(c => (S.cat==="all" || category(c)===S.cat)
+      && (!S.onlyVotes || c.total_votes>0)
+      && (!S.filter || (c.title+" "+(c.area||"")+" "+c.candidates.map(x=>x.name).join(" ")).toLowerCase().includes(S.filter)));
+  const pc = r.poll_close;
+  m.innerHTML = obsNotice(r.observation) + `<div class="small mut" style="margin-bottom:6px">${evBadge(r.evidence)} &nbsp; Scheduled poll close
+     ${esc(pc.local_time)} ${esc(pc.time_zone.split("/")[1])} (${esc(pc.confidence.replace(/_/g," "))}; the tracker does not infer that polls are closed from the clock alone).</div>
+     <div class="row small" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+     <input type="search" id="q" placeholder="Search race, district, candidate" value="${esc(S.filter)}" aria-label="Search races">
+     <select id="cat" aria-label="Category">${cats.map(c=>`<option ${c===S.cat?"selected":""}>${esc(c)}</option>`).join("")}</select>
+     <label><input type="checkbox" id="ov" ${S.onlyVotes?"checked":""}> only races with votes reported</label>
+     <span class="mut">${list.length} of ${r.contests.length} contests &middot; source acquisition ${esc(mt(r.acquired_at_utc))}</span></div>
+     <div class="cards" id="cards"></div>`;
+  $("#q").oninput = e => { S.filter = e.target.value.toLowerCase(); rRaces(m); $("#q").focus(); };
+  $("#cat").onchange = e => { S.cat = e.target.value; rRaces(m); };
+  $("#ov").onchange = e => { S.onlyVotes = e.target.checked; rRaces(m); };
+  const cards = $("#cards");
+  for (const c of list.slice(0,300)){
+    const el = document.createElement("div"); el.className = "card";
+    const maxv = Math.max(1, ...c.candidates.map(x=>x.votes||0));
+    el.innerHTML = `<h3>${esc(c.title)}${c.area?` <span class="sub">&middot; ${esc(c.area)}</span>`:""}</h3>
+      <div class="sub">${esc(category(c))} &middot; vote for ${esc(c.vote_for)} &middot; <span class="pill warn">UNOFFICIAL</span></div>
+      <div class="cand">${c.candidates.slice(0,6).map((x,i)=>`
+        <span class="${i===0&&c.leader?"lead":""}">${i===0&&c.leader?"&#9650; ":""}${esc(x.name)}${x.party?` <span class="mut">(${esc(x.party)})</span>`:""}</span>
+        <span class="n">${fmt(x.votes)}${x.pct!=null?` &middot; ${x.pct.toFixed(1)}%`:""}</span>
+        <span class="bar" aria-hidden="true"><i style="width:${100*(x.votes||0)/maxv}%"></i></span>`).join("")}
+        ${c.candidates.length>6?`<span class="mut small">+${c.candidates.length-6} more</span>`:""}</div>
+      <div class="small" style="margin-top:6px">${c.total_votes? (c.leader?`Leader: <b>${esc(c.leader)}</b> by ${fmt(c.margin_votes)} votes (${c.margin_pp}&nbsp;pp)`: "Tied for first") : "No votes reported yet"}
+        &middot; Total ${fmt(c.total_votes)}</div>
+      <div class="small mut">Precincts reporting (source measure): ${esc(c.precincts_label||"-")} &middot; acquired ${esc(mt(c.acquired_at_utc))}</div>
+      <button class="small" style="margin-top:6px">Details &amp; evidence</button>`;
+    el.querySelector("button").onclick = () => openContest(c);
+    cards.appendChild(el);
+  }
+  if (list.length>300) cards.insertAdjacentHTML("beforeend", `<div class="notice">Showing first 300; refine the search.</div>`);
+}
+
+/* ---- time-indexed chart: one stepped line per candidate over the primary source's observation times ---- */
+function niceMax(v){ if (v<=0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1,1.5,2,2.5,3,4,5,6,8,10]) if (m*p >= v) return m*p; return 10*p; }
+function drawChart(el, pts, mode, pollCloseUtc){
+  const names = [...new Set(pts.flatMap(p => Object.keys(p.candidates)))].sort();
+  const latest = pts[pts.length-1];
+  const shown = [...names].sort((a,b) => (latest.candidates[b]||0) - (latest.candidates[a]||0)).slice(0,8).sort();   // color by stable (alphabetical) slot, never by rank
+  const color = n => `var(--s${names.indexOf(n) % 8 + 1})`;
+  const share = mode === "share";
+  const val = (p, n) => { const v = p.candidates[n]; if (v == null) return null; const tot = Object.values(p.candidates).reduce((a,b)=>a+(b||0),0); return share ? (tot ? 100*v/tot : null) : v; };
+  const W = 860, H = 270, L = 56, R = 150, T = 12, B = 28, pw = W-L-R, ph = H-T-B;
+  let t0 = new Date(pts[0].t).getTime(), t1 = new Date(latest.t).getTime();
+  if (t1 === t0) { t0 -= 60000; t1 += 60000; }
+  const pc = pollCloseUtc ? new Date(pollCloseUtc).getTime() : null;
+  const x = t => L + pw * (t - t0) / (t1 - t0);
+  const ymax = share ? 100 : niceMax(Math.max(1, ...pts.flatMap(p => shown.map(n => p.candidates[n] || 0))));
+  const y = v => T + ph * (1 - v / ymax);
+  const yt = [0, .25, .5, .75, 1].map(f => f * ymax);
+  const nt = 5, xt = Array.from({length: nt}, (_, i) => t0 + (t1 - t0) * i / (nt - 1));
+  const tfmt = t => new Date(t).toLocaleTimeString("en-US", {timeZone:"America/Denver", hour:"numeric", minute:"2-digit"});
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Votes over time for each candidate, from ${esc(tfmt(t0))} to ${esc(tfmt(t1))} Mountain Time. The table below lists the same observations.">`;
+  for (const v of yt) svg += `<line class="grid" x1="${L}" x2="${L+pw}" y1="${y(v)}" y2="${y(v)}"/><text class="axis" x="${L-6}" y="${y(v)+4}" text-anchor="end">${share ? v.toFixed(0)+"%" : fmt(v)}</text>`;
+  for (const t of xt) svg += `<text class="axis" x="${x(t)}" y="${H-8}" text-anchor="middle">${esc(tfmt(t))}</text>`;
+  if (pc && pc > t0 && pc < t1) svg += `<line x1="${x(pc)}" x2="${x(pc)}" y1="${T}" y2="${T+ph}" stroke="var(--mut)" stroke-dasharray="4 4"/><text class="axis" x="${x(pc)+4}" y="${T+10}">polls close (unverified)</text>`;
+  const ends = [];
+  for (const n of shown) {
+    const q = pts.map(p => [new Date(p.t).getTime(), val(p, n)]).filter(a => a[1] != null);
+    if (!q.length) continue;
+    let d = `M${x(q[0][0])} ${y(q[0][1])}`;
+    for (let i = 1; i < q.length; i++) d += ` H${x(q[i][0])} V${y(q[i][1])}`;
+    svg += `<path d="${d}" fill="none" stroke="${color(n)}" stroke-width="2" stroke-linejoin="round"/>`;
+    const last = q[q.length-1];
+    svg += `<circle cx="${x(last[0])}" cy="${y(last[1])}" r="4" fill="${color(n)}" stroke="var(--bg)" stroke-width="2"/>`;
+    ends.push({n, y: y(last[1])});
+  }
+  if (shown.length <= 4) {          // direct labels, nudged apart; legend below carries identity regardless
+    ends.sort((a,b) => a.y - b.y); let prev = -99;
+    for (const e of ends) { e.ly = Math.max(e.y, prev + 14); prev = e.ly; svg += `<text x="${L+pw+10}" y="${e.ly+4}" fill="var(--fg)" font-size="12">${esc(e.n.length > 22 ? e.n.slice(0,21)+"…" : e.n)}</text>`; }
+  }
+  svg += `<line id="xh" y1="${T}" y2="${T+ph}" stroke="var(--mut)" stroke-width="1" visibility="hidden"/><rect id="hit" x="${L}" y="${T}" width="${pw}" height="${ph}" fill="transparent"/></svg>`;
+  const legend = shown.length >= 2 ? `<div class="legend">${shown.map(n=>`<span><i style="border-color:${color(n)}"></i>${esc(n)}</span>`).join("")}</div>` : "";
+  el.innerHTML = `<div class="modes"><button data-m="votes" aria-pressed="${!share}">Votes</button><button data-m="share" aria-pressed="${share}">Share of votes</button></div>${legend}${svg}<div class="tip" hidden></div>
+    ${names.length > shown.length ? `<div class="small mut">Showing the ${shown.length} candidates with the most votes; all are in the table below.</div>` : ""}
+    <div class="small mut">${pts.length} observation${pts.length===1?"":"s"} of the primary source. Lines hold the last observed value until the next observation (a step, not an interpolation). Times are Mountain.</div>`;
+  el.querySelectorAll("[data-m]").forEach(b => b.onclick = () => drawChart(el, pts, b.dataset.m, pollCloseUtc));
+  const s = el.querySelector("svg"), hit = el.querySelector("#hit"), xh = el.querySelector("#xh"), tip = el.querySelector(".tip");
+  const move = ev => {
+    const r = s.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width;
+    const t = t0 + (t1 - t0) * Math.min(1, Math.max(0, (px - L) / pw));
+    let k = 0, bd = Infinity; pts.forEach((p, i) => { const d = Math.abs(new Date(p.t).getTime() - t); if (d < bd) { bd = d; k = i; } });
+    const p = pts[k], xx = x(new Date(p.t).getTime());
+    xh.setAttribute("x1", xx); xh.setAttribute("x2", xx); xh.setAttribute("visibility", "visible");
+    tip.hidden = false; tip.replaceChildren();
+    const h = document.createElement("div"); h.className = "mut"; h.textContent = mt(p.t) + (p.precincts ? " · precincts " + p.precincts : ""); tip.appendChild(h);
+    for (const n of shown) {
+      const v = val(p, n); const row = document.createElement("div");
+      const key = document.createElement("span"); key.className = "k"; key.style.borderColor = color(n);
+      const b = document.createElement("b"); b.textContent = v == null ? "not published" : share ? v.toFixed(1) + "%" : fmt(v);
+      const nm = document.createElement("span"); nm.className = "mut"; nm.textContent = " " + n;
+      row.append(key, b, nm); tip.appendChild(row);
+    }
+    const left = (xx / W) * r.width; tip.style.left = Math.min(left + 12, r.width - tip.offsetWidth - 4) + "px"; tip.style.top = "30px";
+  };
+  hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move);
+  hit.addEventListener("pointerleave", () => { xh.setAttribute("visibility", "hidden"); tip.hidden = true; });
+}
+
+async function openContest(c){
+  const dlg = $("#dlg"), body = $("#dlgBody");
+  body.innerHTML = `<h2>${esc(c.title)} ${c.area?`<span class="mut">&middot; ${esc(c.area)}</span>`:""}</h2><p class="mut">Loading&hellip;</p>`;
+  dlg.showModal();
+  const q = asOf() ? "?as_of="+encodeURIComponent(asOf()) : "";
+  const [src, tl, meta, pred] = await Promise.all([J(`/api/contests/${encodeURIComponent(c.contest_id)}/sources${q}`),
+      J(`/api/contests/${encodeURIComponent(c.contest_id)}/timeline`), J(`/api/artifacts/${c.acquisition_id}/metadata`),
+      J(`/api/artifacts/${c.acquisition_id}/predicates`)]);
+  const names = c.candidates.map(x=>x.name);
+  const tlRows = tl.filter(p => !asOf() || p.t <= asOf()).slice(-12).reverse();
+  body.innerHTML = `<h2>${esc(c.title)} ${c.area?`<span class="mut">&middot; ${esc(c.area)}</span>`:""}</h2>
+   <p><span class="pill warn">UNOFFICIAL</span> <span class="mut small">${esc(c.contest_id)}</span></p>
+   <h3 style="margin-bottom:0">Votes over time</h3><div class="tc" id="tc"></div>
+   <h3>Candidates</h3>
+   <table><thead><tr><th>Candidate</th><th>Party</th><th class="n">Votes</th><th class="n">% (derived)</th><th class="n">Source % text</th><th class="n">Early</th><th class="n">Absentee</th><th class="n">Election day</th></tr></thead><tbody>
+   ${c.candidates.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.party||"")}</td><td class="n">${fmt(x.votes)}</td><td class="n">${x.pct==null?"-":x.pct.toFixed(2)}</td><td class="n">${esc(x.source_pct_text||"-")}</td><td class="n">${x.votes_early==null?MISSING.NOT_PUBLISHED:fmt(x.votes_early)}</td><td class="n">${x.votes_absentee==null?MISSING.NOT_PUBLISHED:fmt(x.votes_absentee)}</td><td class="n">${x.votes_election_day==null?MISSING.NOT_PUBLISHED:fmt(x.votes_election_day)}</td></tr>`).join("")}</tbody></table>
+   <p class="small mut">"not published" means the source left the field blank; it is not the same as zero. Percentages in the "derived" column are computed here; the source's own text is shown beside it. Precincts reporting is the source's own measure and is not the share of ballots counted.</p>
+   <h3>Observed history (primary source, last ${tlRows.length} changes)</h3>
+   <table><thead><tr><th>Acquired (MT)</th><th>Precincts</th><th class="n">Total</th>${names.map(n=>`<th class="n">${esc(n)}</th>`).join("")}</tr></thead><tbody>
+   ${tlRows.map(p=>`<tr><td>${esc(mt(p.t))}</td><td>${esc(p.precincts||"")}</td><td class="n">${fmt(p.total)}</td>${names.map(n=>`<td class="n">${fmt(p.candidates[n])}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="9" class="mut">No history yet</td></tr>`}</tbody></table>
+   <h3>Same contest across source exports</h3>
+   <p class="small mut">All rows come from the NM Secretary of State. Other publishers are not connected yet. A difference is shown as a comparison state, not an error.</p>
+   <table><thead><tr><th>Source</th><th>Acquired (MT)</th><th>Comparison</th><th class="n">Total</th><th>Precincts</th></tr></thead><tbody>
+   ${src.map(s=>`<tr><td>${esc(s.source_name)}</td><td>${esc(mt(s.acquired_at_utc))}</td><td>${esc(s.comparison)}${s.seconds_after_baseline?` (+${s.seconds_after_baseline}s)`:""}</td><td class="n">${fmt(s.total_votes)}</td><td>${esc(s.precincts_label||"")}</td></tr>`).join("")}</tbody></table>
+   <h3>Evidence ${evBadge(meta.evidence_level)}</h3>
+   <p class="small">${esc(meta.evidence_level.claim)}</p>
+   ${meta.evidence_level.notes.length?`<ul class="small">${meta.evidence_level.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>`:""}
+   <table><caption class="small mut" style="text-align:left">Evidence predicates (each stands alone; a "no" means a control is incomplete, not that the content is false)</caption><tbody>
+   ${Object.entries(pred.predicates).map(([k,v])=>`<tr><td><code>${esc(k)}</code></td><td>${v.value===true?'<span class="pill ok">yes</span>':v.value===false?'<span class="pill warn">no</span>':`<span class="pill">${esc(v.value)}</span>`}</td><td class="small">${esc(v.basis)}</td></tr>`).join("")}</tbody></table>
+   <div style="margin-top:8px">${evidenceHtml(meta)}</div>`;
+  const pts = tl.filter(p => !asOf() || p.t <= asOf());
+  if (pts.length) drawChart($("#tc"), pts, "votes", S.contests && S.contests.poll_close ? S.contests.poll_close.utc : null);
+  else $("#tc").innerHTML = `<p class="mut small">No observations yet.</p>`;
+}
+
+function evidenceHtml(a){
+  const nav = [a.previous_acquisition_id ? `<a href="#" data-acq="${a.previous_acquisition_id}">&laquo; previous (#${a.previous_acquisition_id})</a>`:"",
+               a.next_acquisition_id ? `<a href="#" data-acq="${a.next_acquisition_id}">next (#${a.next_acquisition_id}) &raquo;</a>`:""].filter(Boolean).join(" &middot; ");
+  setTimeout(() => document.querySelectorAll("#dlgBody a[data-acq]").forEach(l => l.onclick = async e => { e.preventDefault();
+    const meta = await J(`/api/artifacts/${l.dataset.acq}/metadata`); $("#evBox").innerHTML = evidenceInner(meta); }), 0);
+  return `<div id="evBox">${evidenceInner(a, nav)}</div>`;
+}
+function evidenceInner(a, nav){
+  nav = nav || [a.previous_acquisition_id ? `<a href="#" data-acq="${a.previous_acquisition_id}">&laquo; previous (#${a.previous_acquisition_id})</a>`:"",
+               a.next_acquisition_id ? `<a href="#" data-acq="${a.next_acquisition_id}">next (#${a.next_acquisition_id}) &raquo;</a>`:""].filter(Boolean).join(" &middot; ");
+  setTimeout(() => document.querySelectorAll("#evBox a[data-acq]").forEach(l => l.onclick = async e => { e.preventDefault();
+    const meta = await J(`/api/artifacts/${l.dataset.acq}/metadata`); $("#evBox").innerHTML = evidenceInner(meta); }), 0);
+  return `<table><tbody>
+   <tr><th>Source</th><td>${esc(a.source ? a.source.source_name : a.source_id)}</td></tr>
+   <tr><th>Source URL</th><td><code>${esc(a.requested_url)}</code></td></tr>
+   <tr><th>Acquisition #</th><td>${esc(a.acquisition_id)} &middot; HTTP ${esc(a.http_status)} &middot; ${esc(a.duration_ms)} ms &middot; retries ${esc(a.retry_count)}</td></tr>
+   <tr><th>Acquired (UTC)</th><td>${esc(a.response_received_utc)} <span class="mut small">(request started ${esc(a.request_started_utc)})</span></td></tr>
+   <tr><th>SHA-256</th><td><code>${esc(a.sha256)}</code> ${a.integrity_ok===true?'<span class="pill ok">hash verified now</span>':a.integrity_ok===false?'<span class="pill bad">HASH MISMATCH</span>':""}</td></tr>
+   <tr><th>Content</th><td>${esc(a.content_type)} &middot; ${fmt(a.content_length)} bytes &middot; changed since prior: ${a.content_changed?"yes":"no"}</td></tr>
+   <tr><th>Collector / parser</th><td>${esc(a.collector_name)} ${esc(a.collector_version)} / ${a.parse_runs.map(p=>esc(p.parser_name+" v"+p.parser_version+" "+p.status)).join(", ")||"not parsed"}</td></tr>
+   <tr><th>Validation findings</th><td>${a.validation_findings.length? a.validation_findings.slice(0,10).map(f=>esc(f.severity+" "+f.code+" "+(f.detail||""))).join("<br>") : "none"}</td></tr>
+   <tr><th>Attempt</th><td>${esc(a.observation_status||"-")} · attempt ${esc(a.attempt_number||1)} · stage ${esc(a.stage_reached||"-")} · failure ${esc(a.failure_status||a.error_class||"none")}</td></tr>
+   <tr><th>Byte layer</th><td>${esc(a.byte_layer||"-")} — ${esc(a.bytes_on_wire_note||"")}</td></tr>
+   <tr><th>Origin instance tag</th><td><code>${esc(a.origin_instance_tag||"-")}</code> <span class="mut small">(short hash of the backend-affinity cookie; the cookie itself is restricted)</span></td></tr>
+   <tr><th>Time (separate facts)</th><td class="small">collector clock ${esc(a.response_completed_utc)} (${esc(a.time_confidence||"unknown")}) · source displayed <code>${esc((a.structured_times&&a.structured_times.source_displayed_update&&a.structured_times.source_displayed_update.original_source_string)||"-")}</code> · trusted timestamp ${esc((a.evidence_level&&a.evidence_level.trusted_timestamp&&a.evidence_level.trusted_timestamp.gen_time_utc)||"none yet")}</td></tr>
+   <tr><th>Neighbours</th><td>${nav||"-"}</td></tr>
+   <tr><th>Raw artifact</th><td>${a.raw_url?`<a href="${esc(a.raw_url)}">download original bytes</a>`:"-"}</td></tr></tbody></table>`;
+}
+
+async function rChanges(m){
+  if (!S.times.length){ m.innerHTML = `<div class="notice">No observations yet.</div>`; return; }
+  const end = S.live ? S.times[S.times.length-1] : S.times[S.idx];
+  const start = new Date(new Date(end).getTime() - S.interval*60000).toISOString();
+  const r = await J(`/api/changes?t_from=${encodeURIComponent(start)}&t_to=${encodeURIComponent(end)}`);
+  m.innerHTML = `<div class="small" style="margin-bottom:8px">Interval: ${[5,15,60,240].map(n=>`<button data-i="${n}" ${S.interval===n?'class="on"':""}>${n>=60?n/60+"h":n+"m"}</button>`).join(" ")}
+     <span class="mut">Comparing state known at ${esc(utc(r.from_acquired_at))} with ${esc(utc(r.to_acquired_at))}</span></div>
+     <p class="small mut">"Observed numeric delta" is the difference between two observed totals. It is not asserted to be new ballots or new votes; the likely cause is labelled only where the evidence supports it, otherwise UNKNOWN_CAUSE. Decreases are shown as they are.</p>
+     ${r.changes.length? `<table><thead><tr><th>Contest</th><th class="n">Observed numeric delta</th><th>Cause (basis)</th><th>By candidate</th><th>Margin</th><th>Precincts</th><th>Flags</th></tr></thead><tbody>
+     ${r.changes.slice(0,200).map(c=>`<tr><td>${esc(c.title)}${c.area?" &middot; "+esc(c.area):""}</td><td class="n">${c.observed_numeric_delta>0?"+":""}${fmt(c.observed_numeric_delta)}</td><td class="small">${esc(c.delta_cause||"-")}<br><span class="mut">${esc(c.delta_cause_basis||"")}</span></td>
+       <td>${c.candidate_changes.map(x=>`${esc(x.candidate)} ${x.delta>0?"+":""}${fmt(x.delta)}`).join("<br>")}</td>
+       <td>${fmt(c.margin_before)} &rarr; ${fmt(c.margin_after)}</td><td>${esc(c.precincts_before||"-")} &rarr; ${esc(c.precincts_after||"-")}</td>
+       <td>${c.lead_change?`<span class="pill warn">LEAD CHANGE</span> ${esc(c.prior_leader||"none")} &rarr; ${esc(c.leader||"none")} `:""}${c.possible_source_revision?'<span class="pill warn">VALUE DECREASED (possible source revision)</span>':""}</td></tr>`).join("")}</tbody></table>`
+       : `<div class="notice">No changes between these two observations.</div>`}`;
+  m.querySelectorAll("button[data-i]").forEach(b => b.onclick = () => { S.interval = +b.dataset.i; render(); });
+}
+
+async function rCoverage(m){
+  const c = await J("/api/coverage");
+  const cm = c.coverage_manifest;
+  const sc = c.source_counts, cc = c.contest_counts;
+  const grid = (o) => o ? `<table><tbody>${Object.entries(o).map(([k,v])=>`<tr><th>${esc(k.replace(/_/g," "))}</th><td class="n">${fmt(v)}</td></tr>`).join("")}</tbody></table>` : "";
+  m.innerHTML = `<p class="small mut">What we expected to collect versus what we are collecting. A contest or source that was expected but is absent is shown as a gap and raises an alert; nothing is silently dropped.</p>
+   ${cm?`<div class="notice small"><b>Coverage manifest v${esc(cm.version)}</b> — ${esc(cm.approval_status.replace(/_/g," "))}. Baseline: acquisition #${esc(cm.baseline_acquisition_id)}, all vote counts zero: <b>${cm.baseline_all_zero?"yes":"NO"}</b>. ${esc(cm.baseline_note)}</div>`
+        :`<div class="notice">No coverage manifest has been created yet.</div>`}
+   <div class="notice"><b>National federal coverage:</b> ${esc(c.national_federal?c.national_federal.status:"NOT_CONFIGURED")} — ${esc(c.national_federal?c.national_federal.note:"federal contests outside New Mexico are not collected")}</div>
+   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+     <div><h3>Sources (${fmt(Object.keys(c.sources).length)})</h3>${grid(sc)}<p class="small mut">VERIFIED stays at 0 until an independent reviewer approves a Source Authority Record.</p></div>
+     <div><h3>New Mexico contests</h3>${grid(cc)}</div>
+     <div><h3>National jurisdictions (${fmt(c.jurisdictions.expected)})</h3>${grid({"collecting an entry page":c.jurisdictions.collecting_entry_page,"degraded":c.jurisdictions.degraded,"no source yet":c.jurisdictions.no_source,"authority verified":c.jurisdictions.authority_verified,"production approved":c.jurisdictions.production_approved})}
+       <p class="small mut">Entry pages are archived, not parsed: no outside-New Mexico results, seat counts or control view exist yet. No source yet: ${esc(c.jurisdictions.no_source_list.join(", "))}.</p></div></div>
+   <h3>Coverage gaps</h3>${(c.contest_gaps||[]).length?`<ul>${c.contest_gaps.map(g=>`<li>${esc(g.race_name)} ${esc(g.area||"")} <code>${esc(g.contest_id)}</code></li>`).join("")}</ul>`:"<p class='mut'>None among expected New Mexico contests.</p>"}
+   <h3>Unexpected discoveries</h3>${(c.unexpected||[]).length?`<ul>${c.unexpected.map(g=>`<li>${esc(g.race_name)} ${esc(g.area||"")}</li>`).join("")}</ul>`:"<p class='mut'>None.</p>"}
+   <h3>Recent coverage events</h3>${(c.events||[]).length?`<table><thead><tr><th>Time</th><th>Kind</th><th>Detail</th></tr></thead><tbody>${c.events.map(e=>`<tr><td>${esc(e.created_utc)}</td><td>${esc(e.kind)}</td><td>${esc(e.detail)}</td></tr>`).join("")}</tbody></table>`:"<p class='mut'>None.</p>"}`;
+}
+
+async function rSources(m){
+  const h = await J("/api/sources/health");
+  m.innerHTML = `<table><thead><tr><th>State</th><th>Source</th><th>Last success (MT)</th><th class="n">Age s</th><th class="n">Polls</th><th class="n">Errors</th><th class="n">Changes</th><th class="n">Avg ms</th><th>Parse ok/fail</th><th>Displayed update</th><th class="n">Clock skew s</th></tr></thead><tbody>
+   ${h.map(x=>`<tr><td><span class="pill ${x.state==="OK"?"ok":x.state==="DEGRADED"?"bad":"warn"}">${esc(x.state)}</span></td><td>${esc(x.source_name)}<br><span class="mut small">${esc(x.source_id)} &middot; every ${esc(x.interval_s)}s</span></td>
+   <td>${esc(mt(x.last_success_utc))}</td><td class="n">${fmt(x.success_age_s)}</td><td class="n">${fmt(x.polls)}</td><td class="n">${fmt(x.errors)}</td><td class="n">${fmt(x.changes)}</td><td class="n">${fmt(x.avg_duration_ms)}</td>
+   <td>${x.parse_ok}/${x.parse_failed}</td><td>${esc(x.displayed_update||"-")}</td><td class="n">${x.clock_skew_s_vs_server_date??"-"}</td></tr>`).join("")}</tbody></table>
+   <p class="small mut">Terms review: every source is currently marked UNREVIEWED (no robots.txt and no stated terms were found). Polling is rate-limited per source.</p>`;
+}
+
+async function rArchive(m){
+  const [mf, al, es, ql, au, ck, ep] = await Promise.all([J("/api/manifests"), J("/api/alerts?limit=30"), J("/api/evidence/summary"), J("/api/qualification"),
+      J("/api/authority"), J("/api/clock"), J("/api/endpoint")]);
+  const c0 = ck[0], e0 = ep[0];
+  m.innerHTML = `<div class="notice small"><b>Evidence system status.</b> Qualification: <b>${esc(ql.authorization_status)}</b> (self-assessment only; no independent approver).
+     Source authority record: <b>${esc(au?au.approval_status:"none")}</b>. These describe how well captures are preserved and timestamped. They say nothing about whether source content is correct.</div>
+   <h3>Evidence levels</h3><table><tbody>
+     <tr><th>Captured artifacts</th><td class="n">${fmt(es.artifacts)}</td></tr><tr><th>In a signed manifest (E2+)</th><td class="n">${fmt(es.at_least_E2)}</td></tr>
+     <tr><th>Independently timestamped (E3+)</th><td class="n">${fmt(es.at_least_E3)}</td></tr><tr><th>Two independent anchors</th><td class="n">${fmt(es.dual_anchored)}</td></tr>
+     <tr><th>Awaiting a trusted timestamp</th><td class="n">${fmt(es.pending_timestamp)}</td></tr><tr><th>Not yet in a manifest</th><td class="n">${fmt(es.unmanifested)}</td></tr>
+     <tr><th>Log sequence gaps</th><td class="n">${es.sequence_gaps.length?esc(es.sequence_gaps.join("; ")):"none"}</td></tr></tbody></table>
+   <h3>Collector clock</h3>${c0?`<p class="small">${esc(c0.state)} · offset ${c0.offset_ms==null?"unknown":esc(c0.offset_ms.toFixed(1))} ms (±${c0.uncertainty_ms==null?"?":esc(c0.uncertainty_ms.toFixed(1))}) at ${esc(c0.sampled_utc)}; policy tolerance ${esc(c0.tolerance_ms)} ms. Measured by SNTP against several independent servers; it is separate from, and no substitute for, the trusted timestamp.</p>`:"<p class='mut'>No sample.</p>"}
+   <h3>Endpoint identity</h3>${e0?`<p class="small">${esc(e0.host)} · ${esc(e0.tls_version)} · certificate <code>${esc((e0.cert_sha256||"").slice(0,16))}…</code> issued by ${esc(e0.cert_issuer)} · validation ${esc(e0.validation_result)} · anomalies ${esc(e0.anomalies_json)}. Endpoint identity shows who was contacted; it does not by itself show the endpoint is officially designated.</p>`:"<p class='mut'>No observation.</p>"}
+   <h3>Signed manifests</h3>${mf.length?`<table><thead><tr><th>Kind</th><th>Window (UTC)</th><th class="n">Acquisitions</th><th class="n">Unique bytes</th><th>Merkle root</th><th>Key</th></tr></thead><tbody>
+     ${mf.map(x=>`<tr><td>${esc(x.kind)}</td><td>${esc(x.window_start_utc)} &rarr; ${esc(x.window_end_utc)}</td><td class="n">${fmt(x.artifact_count)}</td><td class="n">${fmt(x.total_bytes)}</td><td><code>${esc((x.merkle_root||"").slice(0,16))}</code></td><td><code>${esc(x.key_id)}</code></td></tr>`).join("")}</tbody></table>`
+     : `<p class="mut">No manifest yet. The first is signed at the top of the next UTC hour.</p>`}
+   <h3>Alerts</h3>${al.length?`<table><thead><tr><th>Time (UTC)</th><th>Source</th><th>Kind</th><th>Detail</th></tr></thead><tbody>
+     ${al.map(x=>`<tr><td>${esc(x.created_utc)}</td><td>${esc(x.source_id||"")}</td><td>${esc(x.kind)}</td><td>${esc(x.detail||"")}</td></tr>`).join("")}</tbody></table>`:`<p class="mut">No alerts.</p>`}`;
+}
+
+async function rAbout(m){
+  const a = await J("/api/about");
+  m.innerHTML = `<h3>About the data</h3><p>${esc(a.scope)}</p><ul>${a.notes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul>
+   <h3>Known source gaps</h3><ul>${a.not_connected.map(n=>`<li>${esc(n)}: not connected</li>`).join("")}<li>County-level results: archived as web pages, not yet parsed into county drill-down</li></ul>
+   <p class="mut small">Version ${esc(a.version)}</p>`;
+}
+
+/* ---- timeline controls ---- */
+function goIdx(i){ S.live = false; S.idx = Math.max(0, Math.min(S.times.length-1, i)); $("#slider").value = S.idx; render(); }
+$("#btnLive").onclick = async () => { S.live = true; await loadTimes(); render(); };
+$("#prev").onclick = () => goIdx((S.live ? S.times.length-1 : S.idx) - 1);
+$("#next").onclick = () => goIdx((S.live ? S.times.length-1 : S.idx) + 1);
+$("#slider").oninput = e => goIdx(+e.target.value);
+document.querySelectorAll("[data-j]").forEach(b => b.onclick = () => {
+  if (!S.times.length) return;
+  const base = new Date(S.times[S.live ? S.times.length-1 : S.idx]).getTime() + (+b.dataset.j)*60000;
+  let k = -1; for (let i=0;i<S.times.length;i++) if (new Date(S.times[i]).getTime() <= base) k = i;
+  if (k<0){ S.live=false; S.idx=0; $("#slider").value=0; render(); $("#tlwarn").innerHTML = `<div class="notice">No observation at or before the selected time; showing the earliest one.</div>`; return; }
+  goIdx(k);
+});
+$("#dlgClose").onclick = () => $("#dlg").close();
+$("#hc").onclick = e => { const on = document.body.classList.toggle("hc"); e.target.setAttribute("aria-pressed", on); };
+
+async function tick(){
+  try { await loadStatus(); if ($("#dlg").open) return; await loadJurs();
+        if (S.sel !== "NM") { await render(); return; }
+        if (S.live) { await loadTimes(); await render(); } else { setViewing(); } }
+  catch(e){ $("#status").innerHTML = `<div><b>Connection</b><span class="pill bad">API unreachable</span> ${esc(e.message)}</div>`; }
+}
+if (location.protocol === "file:") {
+  // Opened straight from disk: relative /api calls cannot work. Say so plainly instead of "failed to fetch".
+  $("#main").innerHTML = `<div class="notice" role="alert"><b>This page was opened as a file, so it cannot reach the data.</b>
+    Open <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> in your browser instead (start it with <code>.\\run.ps1</code> if that address does not load).</div>`;
+} else { tabs(); tick(); setInterval(tick, 15000); }
+</script>
+</body>
+</html>

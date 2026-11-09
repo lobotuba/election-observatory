@@ -1,0 +1,1478 @@
+ELECTION INFORMATION OBSERVATORY
+COMPLETE PROJECT SPECIFICATION
+Version: 0.1 Draft
+Date: 2026-11-03
+Prepared for: Robert Voss
+
+======================================================================
+1. DOCUMENT PURPOSE
+======================================================================
+
+This document defines a complete preliminary specification for an Election
+Information Observatory consisting of three connected capabilities:
+
+1. A live election tracker for following unofficial returns.
+2. An immutable archival system that preserves what each monitored source
+   published and when it was observed.
+3. A comparison and analysis workbench for evaluating official returns,
+   aggregator feeds, media reporting, race calls, corrections, and final
+   certified results.
+
+The system is intended to improve transparency and reproducibility. It must
+not assume that a difference between two sources proves error, misconduct, or
+intent. It must preserve provenance and make neutral comparisons possible.
+
+Election-night results must always be represented as unofficial until the
+responsible election authority completes the applicable canvass,
+certification, recount, or amendment process.
+
+======================================================================
+2. PROJECT VISION
+======================================================================
+
+Working Name:
+Election Information Observatory
+
+Core Mission:
+Continuously collect public election information from authoritative and
+reporting sources, preserve each observed version, normalize the data without
+destroying its original meaning, display current results in a live tracker,
+and support time-aligned comparison from election night through certification.
+
+Primary Questions the System Must Answer:
+
+- What did an election authority report at a specific time?
+- What did an aggregator or publisher display at that same time?
+- Which races, counties, precincts, or ballot classes changed between updates?
+- When did each source first display a result, statement, correction, or call?
+- Was a numerical difference caused by latency, rounding, geographic scope,
+  ballot inclusion, caching, correction, or another identifiable condition?
+- How did election-night returns differ from canvassed and certified results?
+- Can each displayed number be traced to the exact acquired source artifact?
+
+Product Components:
+
+A. LIVE TRACKER
+   What is happening now?
+
+B. DATA ARCHIVE
+   What did every monitored source publish, and when was it observed?
+
+C. INFORMATION TRACKER
+   What were aggregators and reporting organizations showing or saying?
+
+D. ANALYSIS WORKBENCH
+   How do source streams compare with one another and with certified results?
+
+======================================================================
+3. GUIDING PRINCIPLES
+======================================================================
+
+3.1 Provenance First
+Every normalized observation must link back to an original acquired artifact,
+source URL, acquisition timestamp, collector version, parser version, and
+cryptographic hash.
+
+3.2 Append-Only History
+New observations must be appended. Existing historical observations must not
+be silently overwritten because later totals differ.
+
+3.3 Separate Observation Types
+The system must distinguish:
+
+- OBSERVED: A source displayed or supplied a value.
+- DERIVED: The application calculated a value from observations.
+- ESTIMATED: A model or source estimated an unknown quantity.
+- REPORTED: A publisher or person made a statement.
+- CALLED: A source projected or called a race.
+- UNOFFICIAL: A preliminary result published before certification.
+- CERTIFIED: A result formally certified by the applicable authority.
+
+3.4 Neutral Comparison
+The system may identify discrepancies, latency, revisions, or conflicts. It
+must not infer intent merely from a difference.
+
+3.5 Source Language Preservation
+The original terminology must be retained alongside normalized values. For
+example:
+
+source_label: "Partially Reporting"
+normalized_status: "PARTIAL"
+
+3.6 Evidence Preservation Before Parsing
+The original response must be stored before a parser transforms it.
+
+3.7 Graceful Degradation
+If a parser fails, the raw acquisition should still be archived and visible as
+an unparsed artifact.
+
+3.8 Operational Respect
+Collectors must respect documented APIs, rate limits, terms of service,
+robots directives, licensing restrictions, and the operational sensitivity of
+public election infrastructure.
+
+======================================================================
+4. SCOPE
+======================================================================
+
+4.1 Initial MVP Scope
+
+Jurisdiction:
+- New Mexico
+
+Election Coverage:
+- One statewide general election
+- Statewide and federal contests
+- State legislative contests where available
+- County and local contests where available through the statewide feed
+- Ballot questions where available
+
+Geographic Resolution:
+- State
+- County
+- District
+- Precinct or reporting unit where published
+
+MVP Source Target:
+- New Mexico Secretary of State result pages
+- New Mexico Secretary of State downloadable exports
+- Selected county election sources when they add unique information
+- One licensed or authorized major aggregator, preferably Associated Press
+- One independent aggregator for comparison
+- Two national reporting organizations
+- Three New Mexico local reporting organizations
+- Official post-election canvass and certification records
+
+MVP Tracker Capabilities:
+- Current contest totals
+- Leader and margin
+- Reporting status
+- County drill-down
+- Data freshness
+- Source attribution
+- Historical timeline slider
+- Update delta view
+- Source comparison
+- Race-call timeline
+- Evidence inspection
+- Raw artifact download where legally permitted
+- Certified-result reconciliation
+
+4.2 Phase 2 Scope
+
+- Five to ten states selected to represent different election-reporting
+  platforms and data formats
+- Reusable platform adapters
+- Expanded national media coverage
+- Additional local media coverage
+- Precinct-level maps where authorized data is available
+- Public API for research access
+
+4.3 Phase 3 Scope
+
+- National coverage
+- All fifty states and the District of Columbia
+- Major territories where feasible
+- State, county, and municipal source adapters
+- Multi-election historical archive
+- Advanced research exports and reproducible analysis packages
+
+4.4 Explicitly Out of Scope for the MVP
+
+- Determining voter intent
+- Predicting election winners using an internal proprietary model
+- Alleging fraud or misconduct based solely on source discrepancies
+- Collecting private voter records
+- Bypassing authentication or access controls
+- Republishing full copyrighted news articles
+- Full broadcast television capture and transcription
+- Comprehensive social-media firehose ingestion
+- Automated candidate sentiment scoring
+
+======================================================================
+5. DATA SOURCE SPECIFICATION
+======================================================================
+
+5.1 Source Classes
+
+TIER 0: ELECTION DEFINITIONS
+Purpose:
+- Define contests, candidates, choices, districts, ballot questions,
+  precincts, vote-for rules, and election dates.
+
+Examples:
+- State ballot definition files
+- Candidate lists
+- Sample ballots
+- Precinct and district definitions
+- Official election proclamations
+
+Priority:
+- Critical
+
+TIER 1: OFFICIAL UNOFFICIAL RETURNS
+Purpose:
+- Capture preliminary election-night returns published by election
+  authorities.
+
+Examples:
+- State Secretary of State result pages
+- State CSV, XML, JSON, XLSX, or TXT exports
+- County election result pages
+- Vendor-hosted Election Night Reporting pages
+
+Priority:
+- Critical
+
+TIER 2: ELECTION DATA AGGREGATORS
+Purpose:
+- Capture normalized result feeds, race calls, turnout data, and update times
+  supplied by major data services.
+
+Candidate Sources:
+- Associated Press Elections API, subject to access and licensing
+- Independent civic election APIs, subject to validation and terms review
+
+Priority:
+- Critical for comparison, but not authoritative
+
+TIER 3: NATIONAL REPORTING ORGANIZATIONS
+Purpose:
+- Capture displayed vote totals, percentages, reporting estimates, race calls,
+  live-blog statements, explanations, and corrections.
+
+Candidate Sources:
+- Reuters
+- CNN
+- Fox News
+- NBC News
+- CBS News
+- ABC News
+- PBS
+- NPR
+- The New York Times
+- The Washington Post
+- Politico
+
+Priority:
+- High
+
+TIER 4: LOCAL REPORTING ORGANIZATIONS
+Purpose:
+- Capture local context, county-specific explanations, reporting delays,
+  ballot-type information, and local calls.
+
+New Mexico Candidates:
+- KOAT
+- KRQE
+- KOB
+- Albuquerque Journal
+- Other regional outlets selected after technical and licensing review
+
+Priority:
+- High
+
+TIER 5: OFFICIAL AND PUBLIC STATEMENTS
+Purpose:
+- Preserve announcements relevant to the interpretation of returns.
+
+Potential Sources:
+- Secretary of State announcements
+- County election official announcements
+- Official press releases
+- Campaign statements
+- Candidate statements
+- Party statements
+- Official social accounts
+- Press conferences
+
+Priority:
+- Medium for MVP, high for later research capability
+
+TIER 6: FINAL AUTHORITATIVE RESULTS
+Purpose:
+- Reconcile election-night observations against the authoritative record.
+
+Examples:
+- County canvass reports
+- State canvass reports
+- Audit reports
+- Recount results
+- Certification documents
+- Amended certifications
+
+Priority:
+- Critical
+
+TIER 7: REFERENCE AND METADATA SOURCES
+Purpose:
+- Supply canonical geography, identifiers, crosswalks, and election context.
+
+Examples:
+- State and county FIPS codes
+- Census geographic identifiers
+- Precinct shapefiles
+- District boundaries
+- Candidate identifiers
+- Party identifiers
+- Voting-method definitions
+- Poll-close times and time zones
+
+Priority:
+- Critical for normalization
+
+5.2 New Mexico MVP Source Inventory
+
+P0 SOURCES:
+
+1. New Mexico Secretary of State election results website
+   Data expected:
+   - Statewide totals
+   - Contest results
+   - County views
+   - Turnout
+   - Ballots cast
+   - Eligible voters
+   - Full and partial precinct-reporting status
+   - Displayed update timestamp
+
+2. New Mexico Secretary of State Media/Results Export
+   Data expected:
+   - All-results CSV
+   - Contest-category CSV exports
+   - Candidate and choice totals
+   - County or reporting-unit information where included
+
+3. New Mexico post-election canvass and certification records
+   Data expected:
+   - Final official totals
+   - Amendments
+   - Recounts where applicable
+
+P1 SOURCES:
+
+4. Associated Press election data, if licensed
+5. Two national reporting organizations
+6. KOAT
+7. KRQE
+8. KOB
+
+P2 SOURCES:
+
+9. Albuquerque Journal
+10. Independent election aggregation API
+11. Selected county-level official sources
+12. Precinct geography and vote-method datasets
+
+5.3 Source Registry Requirements
+
+Each source must have a durable registry record containing:
+
+- source_id
+- source_name
+- organization_name
+- source_class
+- authority_level
+- jurisdiction
+- election_scope
+- base_url
+- endpoint_url
+- platform_family
+- collection_method
+- expected_content_type
+- expected_format
+- authentication_method
+- credential_reference
+- polling_policy_id
+- time_zone
+- source_timestamp_type
+- terms_review_status
+- license_type
+- robots_review_status
+- retention_permission
+- quotation_permission
+- parser_name
+- parser_version
+- active_from
+- active_until
+- owner_contact
+- operational_notes
+- fallback_method
+- emergency_disable_state
+
+5.4 Source Acquisition Matrix
+
+Every proposed source must be evaluated for:
+
+- URL stability
+- Documented API availability
+- Machine-readable export availability
+- Browser-rendering requirement
+- Authentication requirement
+- Access cost
+- Contract or licensing restrictions
+- Rate limits
+- Typical update interval
+- Source-generated timestamp
+- Geographic granularity
+- Vote-method granularity
+- Race-call availability
+- Historical accessibility
+- Correction behavior
+- Cache behavior
+- CDN behavior
+- Robots instructions
+- Permitted archival method
+- Fallback capture method
+- Pre-election rehearsal status
+- Election-night owner
+
+5.5 Platform Adapter Strategy
+
+Collectors should be organized by platform family rather than solely by state.
+
+Examples:
+
+- Generic CSV adapter
+- Generic JSON adapter
+- Generic XML adapter
+- Generic HTML table adapter
+- Scytl or Clarity-style Election Night Reporting adapter
+- State-specific custom API adapter
+- Browser-rendered Playwright adapter
+- PDF certification adapter
+- RSS or press-release adapter
+
+A jurisdiction configuration should map its source to the appropriate adapter.
+
+======================================================================
+6. LIVE ELECTION TRACKER REQUIREMENTS
+======================================================================
+
+6.1 National or Multi-Jurisdiction Dashboard
+
+The tracker must support:
+
+- Election title and date
+- Current local and UTC time
+- Overall source-health indicator
+- Current unofficial status label
+- Contest cards
+- Called and uncalled race states
+- Seat balance where relevant
+- Required majority threshold
+- Last source update time
+- Last acquisition time
+
+6.2 Contest Card
+
+Each card should display:
+
+- Office or question title
+- District or jurisdiction
+- Candidate or choice names
+- Party where applicable
+- Votes
+- Percentage
+- Current leader
+- Margin in votes
+- Margin in percentage points
+- Total votes reported
+- Reporting-unit counts
+- Full and partial reporting counts if supplied
+- Source-generated update timestamp
+- System acquisition timestamp
+- Source name
+- Status: unofficial, canvassed, recounted, certified, or amended
+- Race-call status by source
+
+6.3 Geographic Drill-Down
+
+Required navigation:
+
+United States or election collection
+  -> State
+  -> Contest
+  -> County or district
+  -> Precinct or reporting unit, where available
+
+6.4 Reporting Detail
+
+Where the source provides the fields, display:
+
+- Precincts fully reporting
+- Precincts partially reporting
+- Total precincts
+- Ballots reported
+- Registered or eligible voters
+- Turnout percentage
+- Known ballot types included
+- Known ballot types outstanding
+- Estimated outstanding ballots, clearly identified as estimated
+- Next expected official update
+
+6.5 Timeline Slider
+
+The user must be able to select a historical observation time and reconstruct
+the tracker state known to the system at that moment.
+
+Requirements:
+
+- Live mode
+- Fixed historical timestamp mode
+- Previous observation
+- Next observation
+- Five-minute, fifteen-minute, and one-hour jumps
+- Display of nearest source observation
+- Clear warning when a source had no observation at the selected time
+- No use of later information in historical reconstruction
+
+6.6 What Changed View
+
+For any selected interval, calculate:
+
+- New votes reported
+- Vote change by candidate or choice
+- Change by county or reporting unit
+- Change in margin
+- Lead change
+- Reporting-unit status change
+- New race call
+- Changed or withdrawn race call
+- Source correction
+- Newly included ballot type where indicated
+
+6.7 Source Comparison View
+
+For the same canonical contest and selected time, display:
+
+- Source name
+- Candidate totals
+- Candidate percentages
+- Total votes
+- Reporting percentage or source-specific reporting measure
+- Race-call state
+- Displayed source timestamp
+- First-observed timestamp
+- Age relative to nearest official observation
+- Numeric difference from selected baseline
+- Scope mismatch warning
+- Rounding warning
+- Stale-data warning
+
+6.8 Race-Call Timeline
+
+Each race-call event must include:
+
+- Source
+- Contest
+- Called winner
+- Claimed publication timestamp
+- First observed timestamp
+- Official-return snapshot nearest the call
+- Reporting status at the time
+- Total votes reported at the time
+- Later correction or retraction linkage
+
+6.9 Map Views
+
+Map modes should include:
+
+- Current leader
+- Current margin
+- Called versus uncalled
+- Reporting completeness
+- New votes since selected prior time
+- Source freshness
+- Data unavailable
+
+Maps must not imply results for areas lacking data.
+
+6.10 Evidence View
+
+Every displayed result should provide access to:
+
+- Source URL
+- Archived artifact metadata
+- Original file where redistribution is permitted
+- SHA-256 hash
+- Acquired-at timestamp
+- Parsed observation
+- Normalized event
+- Collector version
+- Parser version
+- Previous artifact
+- Next artifact
+- Validation warnings
+
+======================================================================
+7. COLLECTION AND ARCHIVAL REQUIREMENTS
+======================================================================
+
+7.1 Acquisition Record
+
+Each acquisition must record:
+
+- acquisition_id
+- source_id
+- election_id
+- requested_url
+- request_started_at_utc
+- response_received_at_utc
+- duration_ms
+- HTTP method
+- HTTP status
+- redirect chain
+- response headers
+- content type
+- content encoding
+- content length
+- ETag
+- Last-Modified
+- cache headers
+- SHA-256
+- object-storage URI
+- collector name
+- collector version
+- prior acquisition ID
+- content changed flag
+- error class
+- error detail
+- retry count
+
+7.2 Raw Artifact Types
+
+The archive should support:
+
+- CSV
+- JSON
+- XML
+- HTML
+- TXT
+- XLSX
+- PDF
+- PNG or JPEG screenshots
+- WARC-compatible web captures
+- Response-header records
+- Browser network logs where lawful and necessary
+
+7.3 Polling Policy
+
+Recommended starting intervals:
+
+- Before polls close: every 5 minutes
+- Poll close through peak reporting: every 15 to 30 seconds
+- Active but slowing: every 60 seconds
+- No material change for 30 minutes: every 2 to 5 minutes
+- Following morning: every 15 minutes
+- Canvass period: every 1 to 6 hours
+- Certification period: daily
+
+Each policy must support:
+
+- Per-source override
+- ETag and If-Modified-Since requests
+- Exponential backoff
+- Random jitter
+- Host-level concurrency limit
+- Retry budget
+- Circuit breaker
+- Emergency stop
+- Manual pause
+- Election-night priority level
+
+7.4 Immutability
+
+- Raw artifacts must be write-once from the application perspective.
+- Object versions must not be deleted by normal application credentials.
+- Retention controls should be enabled.
+- A second administrative boundary should receive replicated copies.
+- Metadata corrections must be appended rather than replacing evidence.
+
+7.5 Cryptographic Integrity
+
+Required:
+
+- SHA-256 for every artifact
+- Signed hourly manifest
+- Daily manifest
+- Artifact count and total byte count in each manifest
+- Optional Merkle tree root for each hourly batch
+- Signing-key identifier
+- Signature verification utility
+- System-clock health record
+
+Recommended advanced control:
+
+- RFC 3161 trusted timestamps for periodic manifests
+
+======================================================================
+8. NORMALIZATION AND DATA MODEL
+======================================================================
+
+8.1 Core Entities
+
+- Election
+- Jurisdiction
+- GeographicUnit
+- ReportingUnit
+- Contest
+- Candidate
+- BallotChoice
+- Party
+- VoteMethod
+- Source
+- RawAcquisition
+- Artifact
+- ParsedObservation
+- ResultSnapshot
+- VoteObservation
+- ReportingStatusObservation
+- TurnoutObservation
+- RaceCallEvent
+- ReportingEvent
+- CorrectionEvent
+- RetractionEvent
+- CanvassEvent
+- CertificationEvent
+- ParserRun
+- ValidationFinding
+
+8.2 Canonical Identifiers
+
+Identifiers must not depend solely on display names.
+
+Examples:
+
+- election_id
+- jurisdiction_id
+- contest_id
+- candidate_id
+- reporting_unit_id
+- source_id
+
+Crosswalk tables must map each source's identifier and label to canonical IDs.
+
+8.3 Vote Observation Fields
+
+- event_id
+- election_id
+- contest_id
+- reporting_unit_id
+- candidate_id or ballot_choice_id
+- vote_method_id, nullable
+- votes
+- source_id
+- source_record_id
+- source_timestamp
+- observed_at_utc
+- acquired_at_utc
+- result_status
+- artifact_id
+- parser_version
+- validation_state
+
+8.4 Reporting Event Fields
+
+- report_event_id
+- publisher_id
+- source_id
+- contest_id
+- event_type
+- subject
+- claimed_publication_time
+- first_observed_at_utc
+- last_observed_at_utc
+- short_verbatim_excerpt
+- normalized_claim
+- source_url
+- artifact_id
+- correction_of_event_id
+- retraction_of_event_id
+- review_status
+
+8.5 Result Status Values
+
+- PRE_ELECTION
+- UNOFFICIAL
+- PARTIAL
+- COMPLETE_UNOFFICIAL
+- CANVASSED
+- RECOUNTED
+- CERTIFIED
+- AMENDED_CERTIFIED
+- WITHDRAWN
+- UNKNOWN
+
+8.6 Reporting Unit Status Values
+
+- NOT_REPORTING
+- PARTIAL
+- FULL
+- SOURCE_DEFINED_OTHER
+- UNKNOWN
+
+8.7 Election Common Data Format Awareness
+
+The canonical model should be designed to map to recognized election-data
+standards where practical. The system should be Common Data Format aware but
+must not require every source to publish a standardized format.
+
+======================================================================
+9. EVENT-SOURCED PROCESSING ARCHITECTURE
+======================================================================
+
+Processing Flow:
+
+1. Scheduler creates collection job.
+2. Collector requests source.
+3. Raw response and headers are archived.
+4. Hash is calculated.
+5. Acquisition metadata is recorded.
+6. Parser reads archived artifact.
+7. Parser emits source-faithful observations.
+8. Normalizer maps observations to canonical entities.
+9. Validator checks internal consistency.
+10. Event store appends normalized events.
+11. Materializer creates current-state views.
+12. Tracker API serves current and historical states.
+13. Comparison engine aligns source observations by time.
+14. Manifest service signs archival batches.
+
+No processing stage may destroy or replace the raw artifact.
+
+======================================================================
+10. COMPARISON AND ANALYSIS ENGINE
+======================================================================
+
+10.1 Comparison Operations
+
+- Official totals versus aggregator totals
+- Official totals versus publisher-displayed totals
+- Source update time versus first observed time
+- First lead change by source
+- First race call by source
+- Source correction timeline
+- Election-night total versus certified total
+- Candidate percentage drift over time
+- Reporting-unit inclusion over time
+- Ballot-method inclusion over time
+- Source latency distribution
+- Missing update detection
+- Duplicate update detection
+- Retroactive content change detection
+
+10.2 Comparison Rules
+
+A difference must not be labeled an error until the system has evaluated:
+
+- Timestamp alignment
+- Geographic scope
+- Contest identity
+- Candidate identity
+- Vote-method scope
+- Rounding
+- Cache age
+- Corrected official source data
+- Partial versus full reporting
+- Source-generated versus estimated reporting percentages
+
+10.3 Time Alignment
+
+Supported alignment methods:
+
+- Nearest observation before event
+- Nearest observation after event
+- Nearest observation within tolerance
+- Exact source timestamp
+- First system-observed timestamp
+
+Default media comparison:
+Use the latest official observation obtained at or before the reporting event,
+while also showing the first later official observation.
+
+10.4 Discrepancy Severity
+
+Suggested neutral classifications:
+
+- MATCH: Values agree after allowed rounding.
+- LATENCY_EXPLAINED: Publisher matches an older official snapshot.
+- SCOPE_MISMATCH: Sources cover different jurisdictions or ballot subsets.
+- ROUNDING_ONLY: Difference is explained by displayed precision.
+- SOURCE_REVISION: Source changed a prior value.
+- UNRESOLVED_DIFFERENCE: Difference remains after automated checks.
+- DATA_UNAVAILABLE: Required evidence is missing.
+
+These labels describe evidence state, not intent.
+
+======================================================================
+11. USER INTERFACE
+======================================================================
+
+11.1 Primary Navigation
+
+- Live
+- Races
+- Map
+- Timeline
+- Compare Sources
+- Race Calls
+- What Changed
+- Archive
+- Research
+- Source Health
+- About the Data
+
+11.2 Required Global Indicators
+
+- Election status
+- Unofficial or certified status
+- Current application time
+- Selected historical time
+- Last official update
+- Last successful collection
+- Delayed source warning
+- Partial outage warning
+
+11.3 Accessibility
+
+- WCAG 2.2 AA target
+- Keyboard navigation
+- Screen-reader labels
+- Non-color status indicators
+- Color-blind-safe palettes
+- High-contrast mode
+- Accessible data tables
+- Descriptive map alternatives
+- Captions for multimedia where applicable
+
+11.4 Mobile Support
+
+- Responsive contest cards
+- Simplified map interactions
+- Timeline touch controls
+- Source-health summary
+- Low-bandwidth mode
+
+======================================================================
+12. API REQUIREMENTS
+======================================================================
+
+12.1 Internal API
+
+Suggested endpoints:
+
+GET /api/elections
+GET /api/elections/{election_id}
+GET /api/elections/{election_id}/contests
+GET /api/contests/{contest_id}/current
+GET /api/contests/{contest_id}/timeline
+GET /api/contests/{contest_id}/sources
+GET /api/contests/{contest_id}/changes
+GET /api/contests/{contest_id}/calls
+GET /api/sources
+GET /api/sources/{source_id}/health
+GET /api/artifacts/{artifact_id}/metadata
+GET /api/compare
+GET /api/certification/{contest_id}
+
+12.2 Research API
+
+Later-phase capabilities:
+
+- API keys
+- Rate limits
+- Dataset versioning
+- Time-bounded exports
+- CSV and JSON output
+- Provenance fields included by default
+- License and attribution metadata
+- Reproducible query identifier
+
+======================================================================
+13. RECOMMENDED TECHNOLOGY STACK
+======================================================================
+
+Collection and Parsing:
+- Python 3.13
+- httpx
+- Playwright for browser-dependent sources
+- lxml
+- pandas or polars
+- pydantic
+
+Backend:
+- FastAPI
+- PostgreSQL
+- TimescaleDB extension if timeline volume warrants it
+- Redis for caching and lightweight queues during MVP
+
+Messaging:
+MVP:
+- Redis Streams or NATS JetStream
+
+National Scale:
+- Redpanda, Apache Kafka, or managed equivalent
+
+Object Storage:
+- Amazon S3, Azure Blob Storage, or MinIO
+- Object lock or immutable retention where available
+- Cross-account or cross-subscription replication
+
+Frontend:
+- React or Next.js
+- TypeScript
+- MapLibre GL JS or equivalent
+- Server-Sent Events or WebSockets for live updates
+
+Observability:
+- OpenTelemetry
+- Prometheus
+- Grafana
+- Loki or OpenSearch
+- Alertmanager or equivalent
+
+Deployment:
+- Containerized services
+- Docker for development
+- Kubernetes only when scale and operational staffing justify it
+- Infrastructure as Code using Terraform or OpenTofu
+
+======================================================================
+14. SECURITY REQUIREMENTS
+======================================================================
+
+14.1 Network Segmentation
+
+Separate:
+
+- Public web frontend
+- Query API
+- Collection workers
+- Processing workers
+- Primary database
+- Immutable archive
+- Administrative control plane
+
+The public application must not have credentials capable of modifying raw
+archive objects.
+
+14.2 Access Control
+
+Roles:
+
+- Public Viewer
+- Research User
+- Election-Night Operator
+- Source Administrator
+- Data Reviewer
+- Security Administrator
+- System Administrator
+- Auditor
+
+14.3 Credential Management
+
+- Store secrets in a managed vault
+- Rotate API keys
+- Never embed source credentials in source code
+- Separate development and production credentials
+- Log credential use without logging the secret
+
+14.4 Application Security
+
+- OWASP ASVS-aligned controls
+- Dependency scanning
+- Static analysis
+- Container scanning
+- Content Security Policy
+- Rate limiting
+- DDoS protection
+- Input validation
+- Audit logging
+- Administrative MFA
+
+14.5 Archive Protection
+
+- Object immutability
+- Versioning
+- Separate administrative ownership
+- Signed manifests
+- Restore testing
+- Documented chain of custody
+
+======================================================================
+15. RELIABILITY AND OPERATIONS
+======================================================================
+
+15.1 Service Objectives
+
+MVP targets:
+
+- 99.9 percent tracker availability during the election window
+- 99.95 percent collector-control-plane availability during peak hours
+- Archive write success above 99.99 percent
+- Official-source collection latency under 60 seconds when source terms and
+  rate limits permit
+- Source failure alert within 2 minutes during peak operation
+
+15.2 Source Health Metrics
+
+- Last successful acquisition
+- Last changed acquisition
+- Consecutive failures
+- HTTP status distribution
+- Parser success rate
+- Schema-change warning
+- Acquisition duration
+- Content size
+- Hash repeat count
+- Timestamp freshness
+- Clock skew estimate
+
+15.3 Election-Night Operations
+
+Required preparations:
+
+- Source rehearsal at least 30 days before election
+- Final rehearsal within 7 days
+- Confirm credentials within 48 hours
+- Freeze nonessential deployments 24 hours before polls close
+- Staff source ownership
+- Establish incident channel
+- Verify system clocks
+- Verify storage capacity
+- Verify manifest signing
+- Verify backup and replication
+- Test emergency source disable
+- Test read-only tracker mode
+
+15.4 Incident Classes
+
+- Source unavailable
+- Source format changed
+- Authentication failure
+- Rate limited
+- Parser failure
+- Normalization conflict
+- Database degradation
+- Archive write failure
+- Public dashboard outage
+- Suspected tampering
+- Incorrect canonical mapping
+
+======================================================================
+16. LEGAL, LICENSING, AND ETHICAL CONTROLS
+======================================================================
+
+Before collection from a source, review:
+
+- Terms of service
+- API license
+- Copyright restrictions
+- Database rights where applicable
+- Robots instructions
+- Rate-limit requirements
+- Republishing restrictions
+- Quotation limits
+- Screenshot retention policy
+- Personal data handling
+
+Media Content Policy:
+
+- Prefer structured facts and short excerpts.
+- Store links and metadata.
+- Do not republish complete copyrighted articles without permission.
+- Preserve complete content only where legally authorized or operationally
+  justified, with access restrictions if necessary.
+
+Neutrality Policy:
+
+- Apply identical collection and comparison rules across parties and
+  candidates.
+- Publish methodology.
+- Distinguish observation from interpretation.
+- Disclose source gaps.
+- Do not present unresolved discrepancies as proof of wrongdoing.
+
+======================================================================
+17. TESTING STRATEGY
+======================================================================
+
+17.1 Unit Tests
+
+- Source parser tests
+- Identifier mapping tests
+- Percentage calculations
+- Margin calculations
+- Time-zone conversion
+- Hash verification
+- Signature verification
+
+17.2 Contract Tests
+
+- Expected source fields
+- Accepted content types
+- Schema-change alerts
+- Authentication behavior
+- Pagination behavior
+
+17.3 Replay Tests
+
+Use historical election data to replay an election night at accelerated speed.
+Verify:
+
+- Timeline reconstruction
+- Delta calculations
+- Source comparisons
+- Race-call events
+- Correction events
+- Tracker state
+- Manifest generation
+
+17.4 Load Tests
+
+Simulate:
+
+- Election-night traffic spikes
+- High-frequency source updates
+- Thousands of concurrent tracker users
+- Map queries
+- Timeline scrubbing
+- Raw artifact access
+
+17.5 Failure Tests
+
+- Source unavailable
+- Malformed CSV
+- Changed HTML
+- Duplicate update
+- Out-of-order timestamp
+- Clock skew
+- Database unavailable
+- Object storage unavailable
+- Queue backlog
+- Parser regression
+
+======================================================================
+18. MVP ACCEPTANCE CRITERIA
+======================================================================
+
+The New Mexico MVP is accepted when:
+
+1. The system collects and archives official New Mexico result exports.
+2. The system archives the corresponding official web presentation.
+3. Every artifact receives a SHA-256 hash and acquisition timestamp.
+4. Parsed observations link back to raw artifacts.
+5. The tracker displays current unofficial contest results.
+6. Users can drill down to county results where available.
+7. Users can select an earlier time and reconstruct the known state.
+8. Users can see changes between two observations.
+9. Users can compare at least four independent source presentations.
+10. Race calls are stored separately from official results.
+11. Corrections and retractions create new events.
+12. Source failures and parser failures generate alerts.
+13. The archive produces signed manifests.
+14. The system reconciles election-night results against certified results.
+15. The public interface clearly labels unofficial data.
+16. The system passes a historical replay test.
+17. A full election-night rehearsal succeeds before production use.
+
+======================================================================
+19. DELIVERY PLAN
+======================================================================
+
+PHASE 0: DISCOVERY AND SOURCE REVIEW, 1 TO 2 WEEKS
+
+Deliverables:
+- Source Acquisition Matrix
+- Legal and licensing review checklist
+- New Mexico contest and geography inventory
+- Initial canonical data model
+- Architecture decision record
+
+PHASE 1: RAW COLLECTION AND ARCHIVE, 2 TO 3 WEEKS
+
+Deliverables:
+- Source registry
+- Scheduler
+- Official-source collectors
+- Object storage
+- Acquisition metadata
+- Hashing and manifests
+- Source-health dashboard
+
+PHASE 2: NORMALIZATION, 2 TO 3 WEEKS
+
+Deliverables:
+- Parsers
+- Canonical IDs
+- Crosswalks
+- Event store
+- Validation rules
+- Current-state materialized views
+
+PHASE 3: LIVE TRACKER, 3 TO 4 WEEKS
+
+Deliverables:
+- Contest dashboard
+- Geographic drill-down
+- Timeline
+- What Changed view
+- Source freshness indicators
+- Evidence view
+
+PHASE 4: COMPARISON AND RACE CALLS, 2 TO 4 WEEKS
+
+Deliverables:
+- Aggregator integration
+- Media-source integration
+- Source comparison
+- Race-call timeline
+- Correction and retraction handling
+
+PHASE 5: HARDENING AND REHEARSAL, 2 TO 3 WEEKS
+
+Deliverables:
+- Load testing
+- Security review
+- Failure testing
+- Historical replay
+- Election-night runbook
+- Final rehearsal
+
+Estimated MVP Total:
+- 10 to 16 weeks for one experienced full-stack and data engineer
+- Shorter calendar duration with parallel frontend, data, and infrastructure
+  workstreams
+
+======================================================================
+20. ESTIMATED OPERATING COST
+======================================================================
+
+Early cloud-hosted MVP estimate:
+- Approximately USD 150 to USD 600 per month outside peak periods
+
+Cost increases may result from:
+- Browser-based capture
+- Frequent screenshots
+- Commercial election-data licensing
+- Cross-region immutable storage
+- Kafka or managed streaming services
+- Heavy public traffic
+- Large historical retention
+- Commercial map tiles
+- Advanced monitoring
+
+Commercial aggregator licensing is not included in the estimate and must be
+quoted directly by the provider.
+
+======================================================================
+21. KEY RISKS AND MITIGATIONS
+======================================================================
+
+RISK: Source structure changes on election night.
+MITIGATION: Platform adapters, schema monitoring, raw capture, HTML fallback,
+and pre-election rehearsals.
+
+RISK: Aggressive polling burdens election infrastructure.
+MITIGATION: Conditional requests, rate limits, backoff, source-specific
+policies, and emergency disable controls.
+
+RISK: Source timestamps are ambiguous.
+MITIGATION: Preserve displayed time, request time, response time, parse time,
+and first-observed time separately.
+
+RISK: Precinct reporting percentage is treated as ballot completion.
+MITIGATION: Store source measure exactly and do not relabel it as percentage
+of votes counted.
+
+RISK: Candidate or contest mappings are wrong.
+MITIGATION: Canonical IDs, source crosswalks, manual review, and validation
+against ballot definitions.
+
+RISK: A discrepancy is mischaracterized.
+MITIGATION: Automated scope, latency, rounding, ballot-type, and revision
+checks before classifying an unresolved difference.
+
+RISK: Public dashboard compromise affects evidence.
+MITIGATION: Isolate public services from collectors and immutable archives.
+
+RISK: Copyright or license violation.
+MITIGATION: Source-by-source legal review, short excerpts, metadata-first
+retention, and licensed APIs where required.
+
+RISK: Missing historical context.
+MITIGATION: Continue collection through canvass, recount, certification, and
+amendment.
+
+======================================================================
+22. REQUIREMENTS TRACEABILITY SUMMARY
+======================================================================
+
+REQ-001  Preserve raw source artifacts.
+REQ-002  Hash every artifact with SHA-256.
+REQ-003  Record all relevant timestamps separately.
+REQ-004  Keep election-night results labeled unofficial.
+REQ-005  Store official results separately from race calls.
+REQ-006  Store media statements separately from official results.
+REQ-007  Maintain append-only history.
+REQ-008  Link every normalized value to provenance.
+REQ-009  Support current-state election tracking.
+REQ-010  Support geographic drill-down.
+REQ-011  Support time-travel reconstruction.
+REQ-012  Support source comparison.
+REQ-013  Support update-delta analysis.
+REQ-014  Support race-call timelines.
+REQ-015  Preserve corrections and retractions.
+REQ-016  Reconcile against certified results.
+REQ-017  Provide source-health monitoring.
+REQ-018  Respect rate limits and terms.
+REQ-019  Support source-specific adapters.
+REQ-020  Provide an evidence-view workflow.
+REQ-021  Distinguish observed, derived, estimated, reported, and certified.
+REQ-022  Preserve original source labels.
+REQ-023  Avoid equating precinct percentage with ballots counted.
+REQ-024  Provide signed archival manifests.
+REQ-025  Isolate the public application from evidence-modification rights.
+REQ-026  Meet WCAG 2.2 AA accessibility target.
+REQ-027  Pass historical replay testing.
+REQ-028  Pass an election-night rehearsal.
+REQ-029  Document neutral discrepancy classifications.
+REQ-030  Publish methodology and known source gaps.
+
+======================================================================
+23. IMMEDIATE NEXT ARTIFACTS
+======================================================================
+
+The following should be produced before implementation begins:
+
+1. New Mexico Source Acquisition Matrix
+2. Detailed logical database schema
+3. Source-adapter interface specification
+4. REST API specification
+5. Tracker wireframes
+6. Evidence-view wireframe
+7. Requirements traceability matrix with test methods
+8. Data retention and licensing matrix
+9. Election-night operations runbook
+10. Historical replay test dataset
+11. Threat model
+12. Architecture decision records
+
+======================================================================
+24. FINAL PROJECT DEFINITION
+======================================================================
+
+The Election Information Observatory is an append-only,
+provenance-preserving election information platform. It collects official
+results, aggregator feeds, reporting presentations, calls, corrections, and
+final certifications. It exposes live unofficial returns through an election
+tracker while preserving each monitored source observation for later
+reconstruction and neutral comparison.
+
+Its defining capability is not merely showing who is ahead. Its defining
+capability is showing what was known, what was reported, by whom, from which
+artifact, and at what time, while preserving a reproducible path from every
+screen value back to the original evidence.
+
+END OF SPECIFICATION

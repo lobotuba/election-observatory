@@ -1,0 +1,1304 @@
+ELECTION INFORMATION OBSERVATORY
+SPECIFICATION ADDENDUM 003
+Requirements for Observation Completeness, Capture Consistency, Source Authority, Time Semantics, and Evidence-System Qualification
+Version: 1.0 Draft
+Date: 2026-11-03
+Project repository: specs/
+
+======================================================================
+1. PURPOSE, STATUS, AND PRECEDENCE
+======================================================================
+
+1.1 Purpose
+
+This addendum closes remaining requirements gaps identified during review of
+Addendum 002. It establishes additional and revised requirements for:
+
+- Failed acquisition evidence;
+- Negative-observation semantics;
+- Source authority and official-publication designation;
+- Timestamp precision, accuracy, authority, and confidence;
+- Acquisition consistency and atomicity;
+- Transport bytes versus decoded content bytes;
+- Source-result version identity;
+- Official-source hierarchy and conflict presentation;
+- Certified public-record acquisition;
+- National time-zone and poll-close modeling;
+- Ranked-choice and multi-round tabulation;
+- Observed numeric delta terminology;
+- Schema versioning and canonical serialization;
+- Deterministic Merkle-tree construction;
+- Signed software build provenance;
+- Expected-source and expected-contest completeness accounting;
+- Pre-election baseline evidence;
+- Explicit election-results presentation semantics;
+- Deterministic evidence-state predicates;
+- Evidence System Qualification Records; and
+- External witness and rehearsal records.
+
+1.2 Status
+
+This document is a requirements addendum. It supplements the master
+specification, Addendum 001, and Addendum 002.
+
+1.3 Precedence
+
+Where this addendum conflicts with Addendum 002, this addendum controls. Where
+this addendum is silent, Addendum 002, Addendum 001, and the master
+specification remain in force in that order.
+
+1.4 Legal Qualification
+
+These requirements are intended to support authentication, integrity,
+reproducibility, and defensible records practices. They do not guarantee
+admissibility or establish the truth of acquired content. Final procedures,
+certification language, legal-hold policy, retention schedules, and evidence
+production practices require review by qualified legal counsel.
+
+======================================================================
+2. FAILED ACQUISITIONS AND NEGATIVE OBSERVATIONS
+======================================================================
+
+REQ-OBS-001 - EVERY ATTEMPT IS AN ACQUISITION EVENT
+
+Every scheduled or manually initiated acquisition attempt shall create an
+append-only acquisition event regardless of whether content is successfully
+returned.
+
+The event shall include:
+
+- acquisition_id;
+- source_id;
+- active source-configuration version;
+- scheduler-created time;
+- scheduled collection time;
+- attempt-start time;
+- attempt-completion time;
+- collector host and release identity;
+- requested URL;
+- attempt number;
+- retry relationship;
+- collection stage reached;
+- DNS result;
+- connection result;
+- TLS result;
+- HTTP result, if any;
+- response-byte count, if any;
+- failure classification;
+- exception or error identifier;
+- configured timeout;
+- actual elapsed time;
+- clock-confidence status;
+- next scheduled retry;
+- operator intervention, if any; and
+- protected audit-log reference.
+
+REQ-OBS-002 - FAILURE TAXONOMY
+
+Failed and incomplete acquisitions shall use explicit statuses, including:
+
+- SCHEDULER_FAILED;
+- DNS_FAILED;
+- CONNECTION_FAILED;
+- TLS_FAILED;
+- CERTIFICATE_VALIDATION_FAILED;
+- REDIRECT_POLICY_FAILED;
+- AUTHENTICATION_FAILED;
+- AUTHORIZATION_DENIED;
+- RATE_LIMITED;
+- HTTP_CLIENT_ERROR;
+- HTTP_SERVER_ERROR;
+- TIMEOUT_BEFORE_HEADERS;
+- TIMEOUT_DURING_BODY;
+- CONNECTION_RESET;
+- PARTIAL_RESPONSE;
+- EMPTY_RESPONSE;
+- INVALID_CONTENT_TYPE;
+- DECOMPRESSION_FAILED;
+- BROWSER_FAILED;
+- PAGE_LOAD_FAILED;
+- DEPENDENT_RESOURCE_FAILED;
+- PARSE_FAILED;
+- ARCHIVE_WRITE_FAILED;
+- HASH_FAILED;
+- TIMESTAMP_FAILED;
+- VERIFICATION_FAILED;
+- OPERATOR_ABORTED; and
+- UNKNOWN_FAILURE.
+
+REQ-OBS-003 - NEGATIVE-OBSERVATION SEMANTICS
+
+The system shall distinguish at minimum:
+
+- OBSERVED_CHANGED;
+- OBSERVED_UNCHANGED;
+- OBSERVATION_FAILED;
+- OBSERVATION_INDETERMINATE;
+- SOURCE_UNAVAILABLE;
+- SOURCE_RETURNED_EMPTY;
+- SOURCE_RETURNED_INVALID;
+- SOURCE_RETURNED_PARTIAL;
+- SOURCE_VERSION_UNCHANGED;
+- SOURCE_VERSION_CHANGED;
+- NOT_SCHEDULED; and
+- COLLECTION_SUPPRESSED_BY_POLICY.
+
+The timeline shall not represent failed or indeterminate intervals as though
+the source was observed and unchanged.
+
+REQ-OBS-004 - FAILURE EVIDENCE PRESERVATION
+
+Failure metadata, diagnostic records, relevant network evidence, and related
+logs shall receive the same append-only, cryptographic, timestamp, retention,
+and replication protections applicable to successful acquisition metadata.
+
+REQ-OBS-005 - RETRY TRANSPARENCY
+
+Retries shall create distinct acquisition events linked to the originating
+scheduled collection. The system shall not collapse several failed attempts
+and a later successful attempt into a single apparent successful observation.
+
+======================================================================
+3. SOURCE AUTHORITY AND PUBLICATION DESIGNATION
+======================================================================
+
+REQ-SOURCE-001 - SOURCE AUTHORITY RECORD
+
+Every source classified as official shall have a versioned Source Authority
+Record containing:
+
+- source_id;
+- owning election authority;
+- jurisdiction;
+- authority level;
+- election scope;
+- officially designated publication page;
+- official endpoint or vendor endpoint;
+- results-system provider;
+- hosting provider, when known;
+- CDN provider, when known;
+- authority-to-vendor relationship;
+- official designation artifact;
+- verification method;
+- verifier;
+- independent reviewer;
+- verification date;
+- activation date;
+- expiration or revalidation date;
+- supporting URLs or documents;
+- supporting artifact digests;
+- approval status; and
+- known limitations.
+
+REQ-SOURCE-002 - AUTHORITY CHAIN
+
+For vendor-hosted or externally hosted official systems, the system shall
+preserve the publication chain, for example:
+
+Election Authority
+    -> Official Election Page
+    -> Designated Vendor Platform
+    -> Hosting/CDN Endpoint
+    -> Collector
+
+Network endpoint authentication shall not by itself establish that an endpoint
+is officially designated by the election authority.
+
+REQ-SOURCE-003 - AUTHORITY REVALIDATION
+
+P0 official sources shall be revalidated:
+
+- Before each covered election;
+- After an endpoint or registrable-domain change;
+- After an unexpected certificate or ownership change;
+- After a vendor-platform migration;
+- After an official authority announcement affecting publication; and
+- Following a material source compromise or incident.
+
+REQ-SOURCE-004 - SOURCE CLASSIFICATION
+
+Each source shall be explicitly classified as one or more of:
+
+- PRIMARY_OFFICIAL;
+- SUBJURISDICTION_OFFICIAL;
+- OFFICIAL_CERTIFICATION_RECORD;
+- AUTHORIZED_AGGREGATOR;
+- INDEPENDENT_AGGREGATOR;
+- NATIONAL_REPORTING_SOURCE;
+- LOCAL_REPORTING_SOURCE;
+- CAMPAIGN_OR_PARTY_SOURCE;
+- PUBLIC_STATEMENT_SOURCE;
+- RESEARCH_SOURCE; and
+- UNKNOWN_OR_UNVERIFIED.
+
+======================================================================
+4. TIME SEMANTICS
+======================================================================
+
+REQ-TIME-001 - STRUCTURED TIME VALUE
+
+Every material timestamp shall be represented by a structured object including:
+
+- timestamp value;
+- UTC offset;
+- IANA time-zone identifier, when applicable;
+- original source string;
+- time authority;
+- technical precision;
+- estimated accuracy or uncertainty;
+- synchronization state;
+- confidence state;
+- leap-second handling policy;
+- time-zone database version, when converted; and
+- derivation method, if not directly observed.
+
+REQ-TIME-002 - PRECISION IS NOT ACCURACY
+
+The system shall represent time precision and time accuracy separately. A
+microsecond-formatted timestamp shall not be described as accurate to one
+microsecond solely because of its formatting.
+
+REQ-TIME-003 - TIME AUTHORITY VALUES
+
+Time authority shall distinguish at minimum:
+
+- SOURCE_DISPLAYED;
+- SOURCE_MACHINE_READABLE;
+- COLLECTOR_SYSTEM_CLOCK;
+- BROWSER_SYSTEM_CLOCK;
+- HTTP_DATE_HEADER;
+- RFC3161_TSA;
+- EXTERNAL_PUBLICATION_ANCHOR;
+- OPERATOR_ENTERED;
+- DERIVED;
+- UNKNOWN.
+
+REQ-TIME-004 - TIME CONFIDENCE VALUES
+
+Time confidence shall distinguish at minimum:
+
+- independently_attested;
+- synchronized_within_policy;
+- synchronized_outside_target;
+- degraded;
+- unsynchronized;
+- source_supplied_unverified;
+- derived;
+- ambiguous;
+- unknown.
+
+REQ-TIME-005 - POLL-CLOSE TIME MODEL
+
+Poll-close records shall include:
+
+- jurisdiction;
+- statutory or officially announced close time;
+- IANA time zone;
+- UTC conversion;
+- source and source artifact;
+- extension orders or announcements;
+- affected precincts or jurisdictions;
+- effective time;
+- confidence state; and
+- supersession relationship.
+
+The tracker shall not infer that polls are closed solely because a configured
+clock time has passed when official status or legally authorized extensions
+indicate otherwise.
+
+REQ-TIME-006 - MULTIPLE LOCAL TIMES
+
+The national model shall support elections or jurisdictions spanning multiple
+time zones or multiple poll-close times. State-level display shall not conceal
+material differences within the state.
+
+======================================================================
+5. ACQUISITION CONSISTENCY AND ATOMICITY
+======================================================================
+
+REQ-CONSIST-001 - CAPTURE INTERVAL
+
+Every acquisition bundle shall record:
+
+- capture_started_utc;
+- capture_completed_utc;
+- capture_duration_ms;
+- each component's start and completion time;
+- each component's source-reported generation or update time;
+- each component's source version identifier; and
+- ordering relationships among components.
+
+REQ-CONSIST-002 - CONSISTENCY CLASSIFICATION
+
+Multi-component acquisitions shall be classified as:
+
+- CONSISTENT;
+- LIKELY_CONSISTENT;
+- POSSIBLY_MIXED;
+- KNOWN_MIXED;
+- UNDETERMINED;
+- NOT_APPLICABLE.
+
+REQ-CONSIST-003 - CONSISTENCY RULES
+
+The consistency determination shall use documented rules based on available
+source-version identifiers, ETags, update timestamps, request ordering,
+network events, DOM state, and source behavior.
+
+REQ-CONSIST-004 - NO FALSE ATOMICITY
+
+The tracker and analysis engine shall not represent a multi-resource bundle as
+an atomic source state when the evidence indicates that components may have
+come from different source versions.
+
+REQ-CONSIST-005 - RECAPTURE ON MIXED STATE
+
+When a bundle is classified POSSIBLY_MIXED or KNOWN_MIXED, the collector shall
+attempt a bounded recapture under the configured policy. The original mixed
+bundle shall remain preserved.
+
+REQ-CONSIST-006 - DATA/SCREENSHOT ASSOCIATION
+
+A screenshot or DOM snapshot shall identify the exact API/network responses
+known to have contributed to the rendered view where technically feasible. If
+that relationship cannot be established, the system shall mark it UNKNOWN.
+
+======================================================================
+6. TRANSPORT BYTES AND DECODED CONTENT
+======================================================================
+
+REQ-BYTE-001 - BYTE-LAYER DEFINITIONS
+
+The evidence specification shall distinguish:
+
+- WIRE_OR_TRANSPORT_PAYLOAD: bytes as received at the capture layer before
+  content decoding, when technically available;
+- HTTP_ENTITY_PAYLOAD: bytes constituting the HTTP response entity;
+- DECODED_CONTENT_PAYLOAD: bytes after Content-Encoding decompression;
+- TEXT_DECODED_REPRESENTATION: characters after charset decoding; and
+- NORMALIZED_APPLICATION_REPRESENTATION: parsed or transformed data.
+
+REQ-BYTE-002 - ORIGINAL EVIDENTIARY PAYLOAD
+
+For each collector type, the specification shall explicitly define which byte
+layer is the evidentiary original and whether earlier transport-layer bytes
+are available. The collector shall not claim preservation of wire bytes when
+its HTTP or browser library only exposes decoded content.
+
+REQ-BYTE-003 - MULTI-LAYER DIGESTS
+
+When both transport and decoded forms are available, the system shall preserve
+and independently hash each form. Their relationship shall be recorded in the
+bundle manifest.
+
+REQ-BYTE-004 - CONTENT DECODING EVIDENCE
+
+Preserve:
+
+- Content-Encoding;
+- Transfer-Encoding;
+- charset declaration;
+- decompression implementation and version;
+- decoding implementation and version;
+- input and output byte lengths;
+- decoding errors; and
+- digest before and after transformation.
+
+REQ-BYTE-005 - NO UNDECLARED NORMALIZATION
+
+Line-ending conversion, Unicode normalization, character replacement,
+whitespace changes, JSON reserialization, spreadsheet recalculation, or other
+transformation shall never be applied to the evidentiary original.
+
+======================================================================
+7. SOURCE RESULT VERSION IDENTITY
+======================================================================
+
+REQ-VERSION-001 - SOURCE VERSION FIELDS
+
+The system shall preserve, where available:
+
+- source_version_id;
+- source_sequence_number;
+- source_generation_time;
+- source_update_time;
+- export_generation_time;
+- ETag;
+- Last-Modified;
+- source file name;
+- source report identifier;
+- source batch identifier;
+- application build/version displayed by the source; and
+- source-specific revision metadata.
+
+REQ-VERSION-002 - ACQUISITION VERSUS SOURCE VERSION
+
+Multiple acquisition events may reference the same source result version. The
+system shall distinguish continued observation of an unchanged version from a
+new source publication.
+
+REQ-VERSION-003 - VERSION COMPARISON
+
+The change engine shall compare both artifact identity and source-version
+identity. Identical source version identifiers with changed bytes, or changed
+version identifiers with identical bytes, shall generate reviewable anomaly
+events.
+
+REQ-VERSION-004 - VERSION SUPERSESSION
+
+Where a source identifies replacement or supersession, the system shall
+preserve the relationship without deleting the superseded version.
+
+======================================================================
+8. OFFICIAL SOURCE HIERARCHY AND CONFLICTS
+======================================================================
+
+REQ-AUTH-001 - SOURCE PRIORITY POLICY
+
+Each contest or jurisdiction shall have a versioned source-priority policy
+identifying:
+
+- primary display source;
+- primary official source;
+- subjurisdiction official sources;
+- fallback source;
+- authorized aggregator role;
+- staleness thresholds;
+- failover conditions;
+- restoration conditions; and
+- conflict-presentation rules.
+
+REQ-AUTH-002 - FIELD-LEVEL AUTHORITY
+
+Authority may differ by field. The system shall permit one source to be
+primary for vote totals and another official source to be primary for ballot
+status, outstanding-ballot estimates, certification documents, or precinct
+metadata.
+
+REQ-AUTH-003 - OFFICIAL CONFLICT STATE
+
+When relevant official sources materially disagree and the difference is not
+explained by update time, scope, ballot type, or source version, the tracker
+shall display an OFFICIAL_SOURCES_DIFFER status rather than silently selecting
+one value.
+
+REQ-AUTH-004 - FALLBACK DISCLOSURE
+
+When the displayed value comes from a fallback or non-primary source, the UI
+and API shall identify the source, the reason for fallback, and the time the
+primary source became unavailable or stale.
+
+REQ-AUTH-005 - NO UNATTRIBUTED CONSENSUS
+
+The system shall not create an unattributed consensus value by averaging,
+majority vote, or silent selection among disagreeing official or reporting
+sources.
+
+======================================================================
+9. CERTIFICATION AND OFFICIAL PUBLIC RECORDS
+======================================================================
+
+REQ-CERTREC-001 - CERTIFICATION RECORD TYPE
+
+Certified election records shall have a dedicated record type distinct from
+election-night result snapshots.
+
+REQ-CERTREC-002 - CERTIFICATION METADATA
+
+Preserve, where available:
+
+- issuing body;
+- jurisdiction;
+- election;
+- contest scope;
+- certification date;
+- document title;
+- document identifier;
+- certified-copy status;
+- signer identity and official capacity as represented in the record;
+- seal or attestation information;
+- filing or publication location;
+- original digital signature;
+- signature certificate and chain;
+- signature validation result;
+- timestamp embedded in the official document;
+- supersedes relationship;
+- superseded-by relationship; and
+- amendment or correction status.
+
+REQ-CERTREC-003 - PRESERVE ISSUER SIGNATURE
+
+When an authority provides a digitally signed document, preserve the original
+signed object and signature validation evidence. The Observatory's own trusted
+timestamp supplements and does not replace the issuer's signature.
+
+REQ-CERTREC-004 - CERTIFIED COPY STATUS
+
+The system shall distinguish:
+
+- official publication;
+- certified copy;
+- public-facing informational copy;
+- scanned copy;
+- reporter or third-party copy;
+- machine-readable official export; and
+- unknown status.
+
+REQ-CERTREC-005 - CERTIFICATION RECONCILIATION
+
+Certified and amended certified totals shall be reconciled to prior unofficial
+and canvassed observations without overwriting any stage.
+
+======================================================================
+10. RANKED-CHOICE AND MULTI-ROUND TABULATION
+======================================================================
+
+REQ-RCV-001 - TABULATION ENTITY
+
+Ranked-choice or multi-round contests shall use a tabulation entity containing:
+
+- tabulation_id;
+- contest_id;
+- source_id;
+- source version;
+- tabulation method;
+- tabulation start/completion times;
+- number of rounds;
+- final-round indicator;
+- certification status; and
+- governing rule reference.
+
+REQ-RCV-002 - ROUND ENTITY
+
+Each round shall preserve:
+
+- round_number;
+- continuing candidates;
+- eliminated candidate or candidates;
+- candidate totals;
+- transferred votes;
+- exhausted ballots;
+- inactive ballots;
+- undervotes;
+- overvotes;
+- round total;
+- threshold, if applicable;
+- source labels; and
+- source artifact.
+
+REQ-RCV-003 - TRANSFERS ARE NOT NEW BALLOTS
+
+Vote transfers between ranked-choice rounds shall not be labeled as newly
+reported ballots or new votes.
+
+REQ-RCV-004 - MULTIPLE TABULATIONS
+
+The system shall support preliminary, corrected, recounted, and certified
+ranked-choice tabulations without merging their rounds.
+
+REQ-RCV-005 - METHOD EXTENSIBILITY
+
+The model shall permit instant-runoff voting, single transferable vote where
+relevant, sequential elimination, and source-defined multi-round methods
+without assuming one universal algorithm.
+
+======================================================================
+11. CHANGE AND DELTA TERMINOLOGY
+======================================================================
+
+REQ-DELTA-001 - OBSERVED NUMERIC DELTA
+
+The default computed difference between observations shall be labeled
+OBSERVED_NUMERIC_DELTA, not NEW_VOTES.
+
+REQ-DELTA-002 - DELTA CAUSE CLASSIFICATION
+
+A numeric delta may be classified as:
+
+- NEW_BALLOTS_REPORTED;
+- NORMAL_COUNT_UPDATE;
+- CORRECTION;
+- REALLOCATION;
+- RANKED_CHOICE_TRANSFER;
+- REPORTING_UNIT_ADDITION;
+- REPORTING_UNIT_REMOVAL;
+- BALLOT_METHOD_ADDITION;
+- BALLOT_METHOD_RECLASSIFICATION;
+- RECOUNT_CHANGE;
+- CERTIFICATION_CHANGE;
+- SOURCE_SCOPE_CHANGE;
+- ROUNDING_CHANGE; or
+- UNKNOWN_CAUSE.
+
+REQ-DELTA-003 - NEW VOTES LABEL RESTRICTION
+
+The UI and API may use the label NEW_VOTES only when source semantics or
+validated reconciliation support that interpretation.
+
+REQ-DELTA-004 - NEGATIVE DELTAS
+
+Negative deltas shall remain visible and shall not be silently clamped to zero.
+They shall be classified or marked UNKNOWN_CAUSE.
+
+======================================================================
+12. SCHEMA VERSIONING AND CANONICAL SERIALIZATION
+======================================================================
+
+REQ-SCHEMA-001 - SCHEMA IDENTITY
+
+Every structured record shall identify:
+
+- schema_name;
+- schema_version;
+- schema_digest;
+- schema_uri or repository reference;
+- serialization format;
+- canonicalization method;
+- producing software release; and
+- migration version, if applicable.
+
+REQ-SCHEMA-002 - PRESERVED HISTORICAL SCHEMAS
+
+Every schema version used to create evidence or analytical records shall be
+preserved for the applicable retention period.
+
+REQ-SCHEMA-003 - NO SILENT REINTERPRETATION
+
+Historical records shall not be silently interpreted under a later schema.
+Migration shall create a new versioned representation linked to the original.
+
+REQ-CANON-001 - CANONICAL SERIALIZATION
+
+Signed manifests, Merkle leaves, custody events, source configurations, and
+other cryptographically protected structured records shall use a specified
+canonical serialization, such as deterministic CBOR or an approved canonical
+JSON scheme.
+
+REQ-CANON-002 - CANONICALIZATION PROFILE
+
+The canonicalization profile shall define:
+
+- character encoding;
+- key ordering;
+- number representation;
+- date/time representation;
+- Unicode handling;
+- whitespace treatment;
+- null handling;
+- duplicate-key handling;
+- binary-data encoding; and
+- unsupported-value behavior.
+
+REQ-CANON-003 - CROSS-IMPLEMENTATION TEST
+
+At least two independent implementations shall produce identical canonical
+bytes and digests for the shared conformance test corpus.
+
+======================================================================
+13. DETERMINISTIC MERKLE-TREE REQUIREMENTS
+======================================================================
+
+REQ-MERKLE-001 - VERSIONED TREE PROFILE
+
+Every Merkle tree shall identify a versioned tree construction profile.
+
+REQ-MERKLE-002 - COMPLETE TREE DEFINITION
+
+The profile shall define:
+
+- leaf input format;
+- leaf domain-separation prefix;
+- internal-node domain-separation prefix;
+- digest algorithm;
+- canonical artifact ordering;
+- duplicate-leaf handling;
+- concatenation order;
+- binary encoding;
+- odd-leaf handling;
+- empty-tree behavior;
+- tree balancing method;
+- proof format;
+- root serialization; and
+- renewal behavior.
+
+REQ-MERKLE-003 - DETERMINISTIC ROOT
+
+Given the same ordered set of leaf inputs and profile version, independent
+implementations shall produce the same root.
+
+REQ-MERKLE-004 - ERRATA AND STANDARDS TRACKING
+
+When an external evidence-record or Merkle-related standard is used, the
+project shall document applicable errata, implementation choices, and
+conformance tests.
+
+REQ-MERKLE-005 - PROOF PRESERVATION
+
+The system shall preserve sufficient inclusion-proof material to verify an
+artifact independently without requiring production-database access.
+
+======================================================================
+14. SOFTWARE BUILD PROVENANCE
+======================================================================
+
+REQ-BUILD-001 - SIGNED BUILD PROVENANCE
+
+Each production release shall have a signed provenance statement containing:
+
+- source repository identity;
+- source commit;
+- commit-signature status;
+- build runner identity;
+- build workflow identity;
+- build recipe;
+- build time;
+- build input digests;
+- dependency digests;
+- base image digest;
+- output artifact digest;
+- SBOM digest;
+- builder attestation; and
+- signing identity.
+
+REQ-BUILD-002 - BUILD/DEPLOY RELATIONSHIP
+
+Deployment records shall identify the exact signed build provenance and
+artifact digest deployed to each collector and parser host.
+
+REQ-BUILD-003 - SUPPLY-CHAIN VERIFICATION
+
+Only releases passing signature, provenance, vulnerability-policy, SBOM, and
+artifact-digest checks may be deployed to production collectors, except under
+an audited break-glass process.
+
+REQ-BUILD-004 - REPRODUCIBLE OR VERIFIABLE BUILD
+
+The project shall document whether builds are reproducible bit-for-bit. If not,
+the alternative verification and provenance controls shall be explicitly
+stated.
+
+======================================================================
+15. EXPECTED COVERAGE AND COMPLETENESS
+======================================================================
+
+REQ-COMP-001 - ELECTION COVERAGE MANIFEST
+
+Each covered election shall have a signed, versioned Election Coverage
+Manifest containing:
+
+- expected federal contests;
+- expected New Mexico contests and questions;
+- expected jurisdictions;
+- expected official sources;
+- expected fallback sources;
+- expected certification sources;
+- expected collector configuration;
+- expected start/end collection windows;
+- responsible operator; and
+- known accepted exclusions.
+
+REQ-COMP-002 - COMPLETENESS STATES
+
+For contests and sources, track:
+
+- EXPECTED;
+- CONFIGURED;
+- VERIFIED;
+- ACTIVE;
+- HEALTHY;
+- DEGRADED;
+- FAILED;
+- NOT_STARTED;
+- COMPLETED;
+- EXCLUDED_WITH_APPROVAL; and
+- UNEXPECTED_DISCOVERY.
+
+REQ-COMP-003 - REAL-TIME COVERAGE DASHBOARD
+
+Election-night operations shall display counts and lists of expected,
+configured, verified, active, healthy, degraded, failed, and missing sources
+and contests.
+
+REQ-COMP-004 - SILENT-GAP PROHIBITION
+
+A source or contest expected by the Election Coverage Manifest but absent from
+collection shall generate an alert and remain visible as a coverage gap.
+
+REQ-COMP-005 - COVERAGE CHANGE CONTROL
+
+Adding, removing, or excluding a P0 contest or source during an active election
+shall require an auditable reason, approver, activation time, and revised
+signed coverage manifest.
+
+======================================================================
+16. PRE-ELECTION BASELINE EVIDENCE
+======================================================================
+
+REQ-BASE-001 - BASELINE COLLECTION
+
+Before polls close, the system shall acquire and preserve baseline evidence
+for:
+
+- Contest definitions;
+- Candidate and ballot-choice lists;
+- Candidate/source crosswalks;
+- District and reporting-unit definitions;
+- Poll-close schedules;
+- Official result URLs;
+- Source Authority Records;
+- Source certificates and endpoint observations;
+- Expected downloadable exports;
+- Result-page display structure;
+- Election-status labels;
+- Ballot-method definitions;
+- Reporting-status definitions; and
+- Zero-result or pre-results files where published.
+
+REQ-BASE-002 - BASELINE DEADLINES
+
+P0 baseline collection shall be completed and reviewed at least seven days
+before the election, with a final revalidation no later than 24 hours before
+the first covered poll closes, unless the authority publishes required data
+later.
+
+REQ-BASE-003 - BASELINE MANIFEST
+
+Baseline artifacts shall be included in a signed, independently timestamped
+baseline manifest linked to the Election Coverage Manifest.
+
+REQ-BASE-004 - BASELINE CHANGE DETECTION
+
+Changes occurring after baseline approval shall generate difference records
+and alerts for review.
+
+======================================================================
+17. ELECTION-RESULT PRESENTATION SEMANTICS
+======================================================================
+
+REQ-PRES-001 - SOURCE-SPECIFIC REPORTING MEASURES
+
+The system shall preserve distinct measures including:
+
+- precincts fully reporting;
+- precincts partially reporting;
+- total precincts;
+- voting locations reporting;
+- counties reporting;
+- estimated vote reporting;
+- ballots reported;
+- ballots remaining;
+- estimated ballots remaining;
+- registered voters;
+- eligible voters;
+- turnout;
+- ballot types included;
+- ballot types outstanding;
+- next expected update; and
+- source-defined reporting measures.
+
+REQ-PRES-002 - NO UNIVERSAL PERCENT REPORTING
+
+The system shall not collapse materially different source measures into one
+unqualified percent_reporting field.
+
+REQ-PRES-003 - PRECICTS ARE NOT BALLOTS
+
+The system shall never infer that the percentage of precincts reporting equals
+the percentage of ballots counted.
+
+REQ-PRES-004 - ESTIMATE LABELING
+
+Estimated vote reporting, estimated outstanding ballots, and modeled turnout
+shall be labeled ESTIMATED and attributed to the estimating source.
+
+REQ-PRES-005 - BALLOT-INCLUSION CONTEXT
+
+Where published, the tracker shall present which ballot classes are included
+in the current totals and whether provisional, mail, overseas, write-in, early,
+or Election Day ballots remain outstanding.
+
+======================================================================
+18. DETERMINISTIC EVIDENCE-STATE PREDICATES
+======================================================================
+
+REQ-STATE-001 - EXPLICIT PREDICATES
+
+The system shall calculate evidence state from explicit Boolean or enumerated
+predicates, including:
+
+- SOURCE_AUTHORITY_VERIFIED;
+- ENDPOINT_VERIFIED;
+- TRANSACTION_CAPTURED;
+- ARTIFACT_HASH_VERIFIED;
+- BUNDLE_SIGNATURE_VERIFIED;
+- TRUSTED_TIMESTAMP_VERIFIED;
+- SECOND_ANCHOR_VERIFIED;
+- IMMUTABLE_STORAGE_VERIFIED;
+- REPLICA_VERIFIED;
+- CONFIGURATION_VERIFIED;
+- COLLECTOR_RELEASE_VERIFIED;
+- PARSER_RELEASE_VERIFIED;
+- CROSSWALK_VERIFIED;
+- CONSISTENCY_VERIFIED;
+- CLOCK_WITHIN_POLICY; and
+- CUSTODY_CHAIN_VERIFIED.
+
+REQ-STATE-002 - NO OPAQUE TRUST SCORE
+
+The platform shall not replace explicit evidence conditions with an opaque
+numeric trust or confidence score.
+
+REQ-STATE-003 - MACHINE-READABLE STATE
+
+Evidence predicates and their supporting references shall be available through
+the API and evidence package.
+
+REQ-STATE-004 - UI DISCLOSURE
+
+The tracker shall summarize degraded evidence states without implying that
+content is false merely because a collection or verification control is
+incomplete.
+
+======================================================================
+19. EVIDENCE SYSTEM QUALIFICATION RECORD
+======================================================================
+
+REQ-QUAL-001 - QUALIFICATION RECORD
+
+Each production election shall have an Evidence System Qualification Record
+covering the exact production architecture and release set used for that
+election.
+
+REQ-QUAL-002 - QUALIFICATION CONTENT
+
+The record shall include:
+
+- system architecture version;
+- collector and parser releases;
+- source configuration set;
+- Election Coverage Manifest;
+- baseline manifest;
+- clock synchronization tests;
+- hash implementation tests;
+- canonicalization tests;
+- Merkle conformance tests;
+- TSA verification tests;
+- dual-anchor tests;
+- signing-key health and access review;
+- immutable-storage tests;
+- replication and restore tests;
+- parser replay tests;
+- browser capture tests;
+- failure-mode tests;
+- evidence-package verification tests;
+- security assessment status;
+- unresolved known defects;
+- approved risk acceptances;
+- operator training records;
+- procedure versions;
+- incident-response contacts; and
+- final authorization to operate for the election.
+
+REQ-QUAL-003 - QUALIFICATION FREEZE
+
+A qualification record shall be signed and independently timestamped before
+the production election window. Material changes afterward shall create an
+amendment and documented impact assessment.
+
+REQ-QUAL-004 - KNOWN DEFECT TRANSPARENCY
+
+Known defects affecting collection, timing, integrity, interpretation, or
+coverage shall be recorded. A production authorization shall identify accepted
+risks and compensating controls.
+
+REQ-QUAL-005 - EVIDENCE ABOUT THE EVIDENCE SYSTEM
+
+Qualification records, test results, procedure versions, training records,
+and election-specific authorization records shall receive evidence-grade
+retention and integrity protection.
+
+======================================================================
+20. INDEPENDENT WITNESS AND REHEARSAL RECORDS
+======================================================================
+
+REQ-WIT-001 - NATIONAL REHEARSAL
+
+Before public production use, the system shall conduct an end-to-end national
+rehearsal using historical or synthetic replay data clearly labeled for test
+use.
+
+REQ-WIT-002 - INDEPENDENT OBSERVER
+
+At least one qualified person not responsible for implementing the tested
+component shall witness or independently review critical qualification tests,
+including evidence export and offline verification.
+
+REQ-WIT-003 - REHEARSAL RECORD
+
+The rehearsal record shall preserve:
+
+- scope;
+- participants;
+- systems and releases;
+- test data identity;
+- start/end times;
+- test procedures;
+- results;
+- failures;
+- corrective actions;
+- retest evidence;
+- observer notes; and
+- approval decision.
+
+REQ-WIT-004 - EXTERNAL VERIFICATION EXERCISE
+
+An evidence package shall be provided to an independent examiner operating
+without production access. The examiner shall verify hashes, signatures,
+trusted timestamps, Merkle proofs, schema/canonicalization, processing lineage,
+and available custody records.
+
+REQ-WIT-005 - NO SYNTHETIC/PRODUCTION CONFUSION
+
+Synthetic rehearsal artifacts shall use separate source IDs, election IDs,
+storage prefixes, signing context, and display labeling so they cannot be
+mistaken for production election evidence.
+
+======================================================================
+21. ADDITIONAL ACCEPTANCE TESTS
+======================================================================
+
+AT-003-001 - FAILED ACQUISITION
+Simulate DNS, TLS, timeout, HTTP 503, partial-body, and archive-write failures.
+Verify each attempt creates a distinct protected acquisition event.
+
+AT-003-002 - NEGATIVE OBSERVATION
+Verify the timeline distinguishes observed unchanged, failed observation,
+indeterminate observation, and source unavailable.
+
+AT-003-003 - SOURCE AUTHORITY CHAIN
+Verify a vendor-hosted official results site can be traced from election
+authority designation through vendor and endpoint evidence.
+
+AT-003-004 - TIME PRECISION/ACCURACY
+Verify microsecond-formatted timestamps retain a separate measured or estimated
+accuracy value and time authority.
+
+AT-003-005 - POLL-CLOSE EXTENSION
+Apply an official poll-close extension to selected precincts and verify the
+tracker does not mark those precincts closed based only on the original time.
+
+AT-003-006 - MIXED DYNAMIC CAPTURE
+Cause an API result update between page dependencies and screenshot capture.
+Verify the bundle is marked POSSIBLY_MIXED or KNOWN_MIXED and is not presented
+as atomic.
+
+AT-003-007 - TRANSPORT/DECODED BYTES
+Acquire gzip-encoded content and verify separate transport and decoded digests
+when both layers are available.
+
+AT-003-008 - UNDECLARED NORMALIZATION
+Alter line endings or JSON formatting in a derived copy and verify the original
+artifact remains unchanged and independently identifiable.
+
+AT-003-009 - SOURCE VERSION IDENTITY
+Acquire the same source version repeatedly, then acquire a new version. Verify
+continued observation and source publication change are distinguished.
+
+AT-003-010 - OFFICIAL SOURCE CONFLICT
+Create conflicting state and county official totals not explained by time or
+scope. Verify OFFICIAL_SOURCES_DIFFER is displayed.
+
+AT-003-011 - FALLBACK DISCLOSURE
+Disable the primary source and verify fallback values are visibly attributed
+with reason and activation time.
+
+AT-003-012 - SIGNED CERTIFICATION DOCUMENT
+Acquire a digitally signed certification document and verify preservation and
+validation of the issuer signature in addition to Observatory timestamps.
+
+AT-003-013 - RANKED-CHOICE TABULATION
+Replay a multi-round contest and verify transfers and exhausted ballots are
+not counted as newly reported ballots.
+
+AT-003-014 - OBSERVED NUMERIC DELTA
+Verify unexplained candidate-total changes are labeled observed numeric deltas,
+not new votes.
+
+AT-003-015 - CANONICAL SERIALIZATION
+Verify two independent implementations produce identical canonical bytes and
+digests for the conformance corpus.
+
+AT-003-016 - MERKLE DETERMINISM
+Verify two independent implementations produce identical roots and inclusion
+proofs for the same ordered leaves and tree profile.
+
+AT-003-017 - HISTORICAL SCHEMA
+Open an old evidence package using its preserved schema and verify no silent
+reinterpretation under the current schema.
+
+AT-003-018 - BUILD PROVENANCE
+Verify source commit, build runner, inputs, recipe, output digest, SBOM, and
+signed provenance for a deployed collector.
+
+AT-003-019 - COVERAGE GAP
+Remove one expected House contest and verify the completeness dashboard and
+alerts identify the missing contest.
+
+AT-003-020 - BASELINE CHANGE
+Change a source endpoint or candidate list after baseline approval and verify a
+reviewable difference event.
+
+AT-003-021 - REPORTING MEASURE
+Verify precinct reporting, estimated vote reporting, and ballots remaining are
+stored and displayed as distinct measures.
+
+AT-003-022 - EVIDENCE PREDICATES
+Invalidate one trust anchor and verify explicit predicate changes without an
+opaque trust score.
+
+AT-003-023 - SYSTEM QUALIFICATION
+Generate and verify a signed election-specific Evidence System Qualification
+Record containing test results, known defects, risk acceptances, and approval.
+
+AT-003-024 - INDEPENDENT EXAMINER
+Provide a package to an isolated verification environment and obtain a signed
+verification report without production access.
+
+======================================================================
+22. IMPLEMENTATION PRIORITIES
+======================================================================
+
+P0 - REQUIRED BEFORE REQUIREMENTS FREEZE
+
+- Failed acquisition events;
+- Negative-observation semantics;
+- Source Authority Record;
+- Time precision/accuracy/authority/confidence model;
+- Acquisition consistency and atomicity model;
+- Transport/decoded-byte definitions;
+- Source result version identity;
+- Canonical serialization;
+- Deterministic Merkle-tree profile;
+- Schema-version evidence;
+- Election Coverage Manifest;
+- Completeness-state accounting;
+- Pre-election baseline evidence;
+- Evidence System Qualification Record; and
+- Acceptance tests mapped to each P0 requirement.
+
+P1 - REQUIRED BEFORE NATIONAL ELECTION REHEARSAL
+
+- Official-source conflict and fallback policy;
+- Certification/public-record pathway;
+- Poll-close and IANA time-zone model;
+- Ranked-choice tabulation model;
+- Observed numeric delta semantics;
+- Signed build provenance;
+- Explicit election-results presentation semantics;
+- Evidence-state predicates;
+- Independent observer/reviewer procedure; and
+- External verification exercise.
+
+P2 - REQUIRED BEFORE PUBLIC PRODUCTION LAUNCH
+
+- Counsel-reviewed certification workflow;
+- Final official-publication and certified-copy procedures;
+- Completed national source-authority records;
+- Final national coverage manifest;
+- Public methodology explaining time, reporting measures, source conflicts,
+  evidence states, and archive limitations;
+- Independent security review;
+- Independent evidence-engineering review; and
+- Election-specific authorization to operate.
+
+======================================================================
+23. REQUIRED FOLLOW-ON ARTIFACTS
+======================================================================
+
+The project shall create or revise:
+
+1. Failed Acquisition and Negative Observation Specification
+2. Source Authority Record Schema
+3. Source Authority Verification Procedure
+4. Structured Time and Confidence Schema
+5. Poll-Close and Time-Zone Model
+6. Acquisition Consistency Profile
+7. Byte-Layer Preservation Standard
+8. Source Result Version Schema
+9. Official Source Conflict and Fallback Policy
+10. Certification Record Acquisition Standard
+11. Ranked-Choice Tabulation Schema
+12. Delta Classification Standard
+13. Schema Registry and Migration Standard
+14. Canonical Serialization Profile
+15. Deterministic Merkle Tree Profile
+16. Signed Build Provenance Standard
+17. Election Coverage Manifest Schema
+18. Pre-Election Baseline Procedure
+19. Election Results Presentation Semantics
+20. Evidence Predicate Specification
+21. Evidence System Qualification Record Template
+22. Independent Examiner Test Procedure
+23. National Rehearsal Plan
+24. Updated Requirements Traceability Matrix
+
+======================================================================
+24. REVISED FREEZE CRITERIA
+======================================================================
+
+The architecture may proceed to detailed design freeze only when:
+
+- All Addendum 001, 002, and 003 P0 requirements have assigned owners;
+- Every P0 requirement maps to an acceptance test;
+- Failed acquisitions are treated as first-class evidence;
+- Source authority is distinguished from endpoint identity;
+- Time precision, accuracy, authority, and confidence are separately modeled;
+- Multi-component consistency is represented without false atomicity;
+- The evidentiary byte layer is defined for every collector type;
+- Canonical serialization is selected and tested;
+- Merkle-tree construction is fully deterministic and versioned;
+- Schemas and migrations are evidence-bearing and preserved;
+- Expected-source and expected-contest completeness are measurable;
+- Baseline evidence and source-authority review are defined;
+- The Evidence System Qualification Record is approved;
+- National election semantics cover multiple rounds and official-source
+  conflicts;
+- The external verification procedure is defined; and
+- No unresolved gap permits missing collection intervals to appear as observed
+  unchanged intervals.
+
+======================================================================
+25. CONCLUSION
+======================================================================
+
+Addendum 003 extends the Election Information Observatory from a strong
+forensic acquisition architecture into a complete observation-accountability
+system. It requires the platform to preserve not only successful content, but
+also failed attempts, indeterminate intervals, source authority, endpoint
+identity, byte-layer meaning, capture consistency, software qualification,
+and expected coverage.
+
+The system shall be capable of demonstrating:
+
+- What it intended to collect;
+- Why a source was considered authoritative;
+- What endpoint it contacted;
+- What happened during every attempt;
+- Which exact bytes were preserved;
+- Which transformations occurred;
+- Whether a multi-resource capture represented a coherent source state;
+- Which source version was observed;
+- What the system could not observe;
+- Whether official sources disagreed;
+- Whether the collection system was qualified for production; and
+- Whether an independent examiner can reproduce the cryptographic and
+  processing verification without production access.
+
+This narrows the defensible factual claim appropriately: the Observatory can
+show what was attempted, what was acquired, how it was preserved, what was
+not acquired, how the source was identified, and what limitations applied at
+the time. It shall not convert evidentiary completeness into a claim that the
+source content was substantively correct or that any discrepancy establishes
+intent or misconduct.
+
+END OF ADDENDUM 003

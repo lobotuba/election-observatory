@@ -1,0 +1,927 @@
+ELECTION INFORMATION OBSERVATORY
+SPECIFICATION ADDENDUM 001
+National Federal Coverage, Comprehensive New Mexico Coverage, and Evidentiary Timestamping
+Version: 1.0
+Date: 2026-11-03
+Project repository: specs/
+
+======================================================================
+1. PURPOSE AND AUTHORITY
+======================================================================
+
+This addendum modifies and supplements the Election Information Observatory
+Complete Project Specification, Version 0.1 Draft.
+
+This addendum makes three material changes:
+
+1. It replaces the New-Mexico-only product boundary with national coverage of
+   all federal races.
+2. It preserves comprehensive coverage of all races and ballot questions
+   published through the New Mexico election-results system.
+3. It establishes a dedicated Digital Evidence and Trusted Timestamping
+   subsystem intended to make acquisition times and preserved raw data as
+   technically rigorous, independently verifiable, and legally defensible as
+   practicable.
+
+If this addendum conflicts with the original specification, this addendum
+controls.
+
+Nothing in this document guarantees admissibility in a particular court,
+administrative proceeding, investigation, or other forum. Admissibility and
+weight depend on applicable law, authentication, certifications, testimony,
+chain of custody, and the circumstances of the proceeding. The system shall,
+however, be designed to support authentication and independent verification.
+
+======================================================================
+2. REVISED PRODUCT SCOPE
+======================================================================
+
+2.1 Product Definition
+
+The Election Information Observatory shall be:
+
+- A national tracker for all federal election contests;
+- A comprehensive tracker for all New Mexico election contests and ballot
+  questions available from official sources;
+- An immutable archive of raw official, aggregator, and reporting-source
+  observations;
+- A source-comparison and reporting-analysis platform; and
+- A digital-evidence preservation system capable of exporting independently
+  verifiable evidence packages.
+
+2.2 National Federal Coverage
+
+The system shall cover all applicable federal contests across the 50 states,
+the District of Columbia, and relevant United States territories.
+
+Required contest classes are:
+
+A. PRESIDENT AND VICE PRESIDENT
+
+- Statewide popular-vote returns;
+- Electoral-vote allocation;
+- Congressional-district allocation where applicable;
+- Electoral College totals;
+- Called, projected, unofficial, canvassed, recounted, certified, and amended
+  states represented separately;
+- Faithless-elector or post-election Electoral College events shall not be
+  inferred from election-night returns and shall be handled as separate later
+  events if included.
+
+B. UNITED STATES SENATE
+
+- Every regularly scheduled contest;
+- Every special election;
+- Each state's applicable seat/class designation;
+- Senate-control tracking;
+- Independents and caucusing relationships represented explicitly rather
+  than automatically assigned to a party without documented support;
+- Vice-presidential tie-breaking implications displayed separately from seat
+  counts.
+
+C. UNITED STATES HOUSE OF REPRESENTATIVES
+
+- Every voting congressional district;
+- Every special election;
+- House-control tracking;
+- At-large districts;
+- Non-voting delegates and resident commissioner contests represented
+  separately and excluded from the 218-seat voting-member majority threshold.
+
+2.3 Comprehensive New Mexico Coverage
+
+The system shall collect and track every contest and question published
+through the applicable New Mexico official election-results sources,
+including, when present:
+
+- President and Vice President;
+- United States Senate;
+- United States House;
+- Governor and Lieutenant Governor;
+- Secretary of State;
+- Attorney General;
+- State Treasurer;
+- State Auditor;
+- Commissioner of Public Lands;
+- Public Regulation Commission or successor/applicable commission contests;
+- New Mexico Senate;
+- New Mexico House of Representatives;
+- Statewide judicial contests;
+- Judicial retention questions;
+- Public Education Commission;
+- Metropolitan Court;
+- Magistrate Court;
+- County offices;
+- Municipal offices included in the official election feed;
+- College district contests or questions;
+- Soil and Water Conservation District contests;
+- Constitutional amendments;
+- Statewide ballot questions;
+- County and local questions;
+- Special elections; and
+- Any other contest, race, retention question, or ballot question carried in
+  the official New Mexico result feed.
+
+2.4 Geographic Resolution
+
+For national federal contests, the system shall collect results at the finest
+officially published and legally collectable resolution, including:
+
+- Nation;
+- State or jurisdiction;
+- Congressional district;
+- County or county equivalent;
+- Precinct or reporting unit, when published; and
+- Vote method, when published.
+
+For New Mexico, the system shall additionally support all available state,
+legislative, judicial, county, municipal, special-district, and ballot-question
+geographies.
+
+2.5 Revised Navigation
+
+The principal tracker navigation shall include:
+
+LIVE | PRESIDENT | SENATE | HOUSE | NEW MEXICO | MAP | SOURCES | ARCHIVE
+
+======================================================================
+3. REVISED SOURCE ACQUISITION SCOPE
+======================================================================
+
+3.1 Primary Official Sources
+
+For every federal contest, the primary source shall be the responsible state,
+District of Columbia, territorial, county, or local election authority that
+publishes the result.
+
+The system shall maintain a jurisdiction acquisition matrix covering:
+
+- 50 states;
+- District of Columbia;
+- Relevant territories;
+- County or local sources required to fill gaps in federal results;
+- New Mexico comprehensive down-ballot sources; and
+- Canvass, recount, certification, and amendment sources.
+
+3.2 Secondary Sources
+
+The system may collect independent observations from:
+
+- Licensed national election-data aggregators;
+- National reporting organizations;
+- New Mexico local reporting organizations;
+- Official announcements;
+- Campaign or candidate statements;
+- Publicly accessible correction and retraction notices; and
+- Other approved research sources.
+
+No aggregator or publisher shall replace the applicable official election
+authority as the primary results source.
+
+3.3 National Adapter Requirement
+
+The source-adapter architecture shall support:
+
+- Generic CSV;
+- Generic JSON;
+- Generic XML;
+- Spreadsheet exports;
+- Plain-text exports;
+- HTML tables;
+- JavaScript-rendered result applications;
+- Common election-night reporting platforms;
+- Custom state systems;
+- County systems;
+- PDF canvass and certification records; and
+- Manual evidence intake under controlled procedures.
+
+New Mexico shall serve as the full-depth reference jurisdiction, but the
+canonical model shall be national before state-specific collector
+implementation is frozen.
+
+======================================================================
+4. DIGITAL EVIDENCE AND TRUSTED TIMESTAMPING SUBSYSTEM
+======================================================================
+
+4.1 Objective
+
+The subsystem shall preserve evidence sufficient for an independent examiner
+to determine:
+
+- The exact bytes acquired;
+- The URL and source from which they were requested;
+- The collection software and configuration used;
+- The relevant request and response metadata;
+- When the collector requested and received the data;
+- The state and confidence of the collector clock;
+- The cryptographic digest of the acquired artifact;
+- That the artifact or an enclosing manifest existed no later than an
+  independently attested time;
+- The subsequent custody, processing, replication, and export history; and
+- The relationship between the raw artifact and every parsed or normalized
+  observation cited by the application.
+
+4.2 Evidentiary Claim Boundary
+
+The system may support the claim:
+
+"These exact bytes were acquired and were in the archive no later than the
+independently attested trusted timestamp."
+
+The system shall not represent the timestamp alone as proving:
+
+- That every visitor saw the same bytes;
+- That the source created the bytes at that exact time;
+- That the bytes were true or accurate;
+- That an apparent discrepancy establishes intent or misconduct; or
+- That the evidence is automatically admissible in every forum.
+
+The following times shall remain distinct:
+
+SOURCE-REPORTED TIME
+!=
+REQUEST TIME
+!=
+RESPONSE-RECEIPT TIME
+!=
+ARCHIVE-WRITE TIME
+!=
+HASH-CALCULATION TIME
+!=
+TRUSTED-TIMESTAMP TIME
+
+4.3 Byte-Exact Preservation
+
+For each acquisition, the system shall preserve the original response body
+byte-for-byte before parsing, decoding, normalizing, reformatting, or
+rendering.
+
+A recommended acquisition directory is:
+
+/acquisitions/{source_id}/{yyyy}/{mm}/{dd}/{acquisition_id}/
+    response.bin
+    request.json
+    response_headers.json
+    acquisition.json
+    clock_status.json
+    response.sha256
+    timestamp_request.tsq
+    timestamp_response.tsr
+    collector_signature.sig
+
+The response.bin object is the evidentiary original. Parsers shall operate
+against an immutable reference or verified copy.
+
+4.4 Cryptographic Digests
+
+Each raw artifact shall receive at minimum:
+
+- SHA-256 digest;
+- Digest calculation timestamp;
+- Digest implementation identification;
+- Byte length; and
+- Verification result after archive write.
+
+The architecture shall permit future addition of a second digest algorithm
+without changing or deleting the original digest record.
+
+4.5 Required Timestamps
+
+Each acquisition record shall independently preserve:
+
+- scheduler_created_utc;
+- request_created_utc;
+- request_sent_utc;
+- first_byte_received_utc;
+- response_completed_utc;
+- artifact_write_started_utc;
+- artifact_write_completed_utc;
+- hash_calculated_utc;
+- manifest_inclusion_utc;
+- trusted_timestamp_utc;
+- parser_started_utc;
+- parser_completed_utc;
+- source_reported_timestamp, if present;
+- source_reported_timezone, if known;
+- source_reported_timestamp_raw; and
+- first_observed_utc.
+
+All application-generated timestamps shall use UTC and an unambiguous,
+high-resolution format. The original source timestamp string shall be retained
+without alteration.
+
+4.6 Clock Integrity
+
+Collector hosts shall synchronize against multiple independent, approved time
+sources.
+
+For each collection period, retain:
+
+- Host identifier;
+- Time synchronization service and version;
+- Configured time sources;
+- Active time source;
+- NTP stratum or equivalent;
+- Clock offset;
+- Jitter or uncertainty;
+- Synchronization state;
+- Clock-step and clock-slew events;
+- Last successful synchronization; and
+- Any interval of degraded or unsynchronized time.
+
+If time synchronization falls outside the approved tolerance, acquisitions
+shall still be preserved but marked TIME_CONFIDENCE_DEGRADED.
+
+The initial operational tolerance shall be defined during detailed design and
+validated in rehearsal. A starting objective is collector-clock offset within
+100 milliseconds during election-night operation, with alerting before the
+offset reaches 500 milliseconds. These thresholds are engineering targets,
+not substitutes for an independent trusted timestamp.
+
+4.7 RFC 3161 Trusted Timestamps
+
+The system shall obtain an independently verifiable trusted timestamp using an
+RFC 3161 compliant Time Stamp Authority for either:
+
+- Each raw artifact; or
+- A cryptographic manifest or Merkle root that covers a defined batch of raw
+  artifacts.
+
+The timestamp request shall submit a digest, not the election content itself.
+
+The system shall preserve:
+
+- Timestamp request;
+- Timestamp response/token;
+- TSA policy identifier;
+- TSA certificate;
+- Full certificate chain;
+- Signature algorithm;
+- Message-imprint algorithm;
+- Serial number;
+- Generation time;
+- Nonce, when used;
+- Verification result; and
+- Validation software and version.
+
+Especially significant artifacts should be individually timestamped even if
+routine acquisitions are batch timestamped. Significant events include:
+
+- First published returns;
+- Poll closure snapshots;
+- Lead changes;
+- Race calls;
+- Corrections or retractions;
+- Source outages or resumptions;
+- Final election-night snapshots;
+- Canvass results;
+- Recount results;
+- Certifications; and
+- Amended certifications.
+
+4.8 Tamper-Evident Chaining
+
+Each acquisition ledger event shall reference the previous ledger event or
+previous artifact-chain value.
+
+At a defined interval, initially one to five minutes during active election
+collection, the system shall:
+
+1. Enumerate newly preserved artifacts;
+2. Construct a deterministic manifest;
+3. Calculate artifact hashes;
+4. Construct a Merkle tree or equivalent tamper-evident aggregate;
+5. Digitally sign the manifest/root;
+6. Submit the root or manifest digest to the trusted timestamp authority;
+7. Preserve the timestamp response;
+8. Replicate the evidence batch; and
+9. Verify the replicated copy.
+
+4.9 Immutable Storage
+
+Raw artifacts, timestamp tokens, signed manifests, and custody logs shall use:
+
+- Object versioning;
+- Write-once or object-lock retention controls;
+- Separate production and evidence-administration roles;
+- Least-privilege service accounts;
+- Multi-factor authentication for evidence administrators;
+- Replication to a second administrative boundary;
+- Deletion protection;
+- Retention-policy audit logs; and
+- Periodic restore and integrity testing.
+
+The public tracker and public API shall have no credential capable of changing
+or deleting evidentiary originals.
+
+4.10 Digital Signatures and Key Management
+
+Collector manifests and evidence exports shall be digitally signed.
+
+Signing keys shall be protected using a managed Hardware Security Module or
+comparably controlled key-management service for production operation.
+
+Required controls include:
+
+- Key identifier;
+- Key owner;
+- Key creation date;
+- Activation and retirement dates;
+- Approved algorithms;
+- Rotation procedure;
+- Revocation procedure;
+- Dual control for high-impact operations;
+- Access audit logs;
+- Backup and recovery procedure; and
+- Preservation of certificates needed for later validation.
+
+4.11 Chain of Custody
+
+Every evidence object shall have an append-only custody ledger covering:
+
+- Acquisition;
+- Initial hash;
+- Archive write;
+- Post-write verification;
+- Manifest inclusion;
+- Trusted timestamping;
+- Replication;
+- Periodic integrity verification;
+- Parser access;
+- Analyst access where applicable;
+- Export;
+- Transfer;
+- Legal hold;
+- Retention extension; and
+- Authorized disposition.
+
+Each event shall contain:
+
+- Event ID;
+- Evidence ID;
+- Event type;
+- UTC time;
+- Actor or service identity;
+- Host or service identity;
+- Reason;
+- Prior state;
+- New state;
+- Related artifact hash;
+- Authorization reference; and
+- Digital signature or protected audit-log linkage.
+
+4.12 Processing Lineage
+
+Every parsed or normalized observation shall identify:
+
+- Original artifact ID;
+- Original artifact hash;
+- Parser name and version;
+- Parser source-code revision;
+- Configuration revision;
+- Parsing start and completion times;
+- Validation findings;
+- Canonical mapping version;
+- Human review events; and
+- Derived calculation version.
+
+A parser correction shall generate a new derived observation. It shall not
+alter the original artifact or erase the previous parsed result.
+
+4.13 Evidence Quality Levels
+
+E0 - UNVERIFIED
+Artifact exists, but integrity or timestamp evidence is incomplete.
+
+E1 - HASHED
+Exact artifact has a verified cryptographic digest and acquisition metadata.
+
+E2 - CHAINED
+Artifact is included in a signed, append-only manifest or Merkle structure.
+
+E3 - INDEPENDENTLY TIMESTAMPED
+Artifact or its covering manifest has a successfully verified independent
+RFC 3161 trusted timestamp.
+
+E4 - REPLICATED AND REVERIFIED
+E3 evidence has been replicated across an administrative boundary and the
+replica has been cryptographically reverified with custody events recorded.
+
+Production election evidence shall target E4. The tracker shall not cite an
+artifact below E2 without visibly identifying the degraded evidence state.
+
+======================================================================
+5. EVIDENCE PACKAGE REQUIREMENT
+======================================================================
+
+5.1 Export Structure
+
+The system shall export a self-contained evidence package for any cited
+observation:
+
+EIO-EVIDENCE-{election}-{jurisdiction}-{evidence_id}/
+
+    ORIGINAL/
+        response.bin
+
+    ACQUISITION/
+        request.json
+        response_headers.json
+        acquisition.json
+        clock_status.json
+
+    INTEGRITY/
+        response.sha256
+        manifest.json
+        manifest.sig
+        merkle_proof.json
+        timestamp_request.tsq
+        timestamp_response.tsr
+        certificate_chain/
+
+    PROCESSING/
+        parser_version.json
+        parser_source_revision.txt
+        parsed_observation.json
+        normalization.json
+        validation_findings.json
+
+    CUSTODY/
+        chain_of_custody.json
+        replication_events.json
+        verification_events.json
+
+    EXPORT/
+        export_manifest.json
+        export_manifest.sig
+
+    README.txt
+    VERIFY.txt
+
+5.2 Independent Verification
+
+The evidence package shall permit an examiner without production-database
+access to:
+
+- Recalculate the original artifact digest;
+- Verify the signed manifest;
+- Verify the Merkle inclusion proof, if used;
+- Verify the RFC 3161 timestamp token;
+- Validate the available certificate chain and preserved validation material;
+- Confirm the artifact-to-parser relationship;
+- Reproduce the parsed observation using the preserved parser revision where
+  practical; and
+- Review custody and replication history.
+
+5.3 Verification Utility
+
+The project shall provide an offline verification utility that:
+
+- Accepts an evidence-package path;
+- Performs structural checks;
+- Recalculates hashes;
+- Verifies signatures;
+- Verifies timestamp tokens;
+- Verifies Merkle inclusion;
+- Reports missing or expired validation material;
+- Produces a machine-readable report; and
+- Produces a human-readable verification report.
+
+The utility shall not require access to the production environment.
+
+======================================================================
+6. AUTHENTICATION AND RECORDS PRACTICE
+======================================================================
+
+6.1 Design Objective
+
+The system and supporting operating procedures shall be designed to support
+authentication of electronic records through:
+
+- Evidence describing the collection process;
+- Evidence showing that the process produces accurate results;
+- Cryptographic identification of the copied data;
+- Certifications by qualified custodians or technical personnel when needed;
+- Repeatable verification procedures; and
+- Documented chain of custody.
+
+6.2 Written Operating Procedures
+
+The project shall maintain approved procedures for:
+
+- Collector deployment;
+- Time synchronization;
+- Source configuration;
+- Collection failure handling;
+- Raw evidence preservation;
+- Hashing;
+- Trusted timestamping;
+- Manifest signing;
+- Key management;
+- Replication;
+- Verification;
+- Analyst access;
+- Evidence export;
+- Legal hold;
+- Incident response;
+- Certificate and validation-material preservation; and
+- Record disposition.
+
+6.3 Custodian and Technical Declarations
+
+The system shall be capable of generating factual reports supporting a
+custodian or qualified technical declaration, including:
+
+- System purpose;
+- Process description;
+- Software and version;
+- Source configuration;
+- Relevant logs;
+- Hashes;
+- Timestamp verification;
+- Chain-of-custody events;
+- Known errors or outages; and
+- Reproduction instructions.
+
+The system shall not automatically assert legal conclusions.
+
+======================================================================
+7. LONG-TERM VALIDATION
+======================================================================
+
+7.1 Preservation Material
+
+For each trusted timestamp and digital signature, preserve:
+
+- End-entity certificate;
+- Intermediate certificates;
+- Root certificate reference or copy where permissible;
+- Timestamp token;
+- TSA policy identifier;
+- Certificate status material available at validation time;
+- Signature and digest algorithm identifiers;
+- Validation report;
+- Validation software and version; and
+- Relevant trust-policy version.
+
+7.2 Renewal and Migration
+
+The evidence program shall include periodic review of:
+
+- Cryptographic algorithm strength;
+- Certificate expiration;
+- TSA availability;
+- Trust-anchor changes;
+- Storage-medium health;
+- File-format obsolescence; and
+- Verification-tool compatibility.
+
+Before an algorithm or certificate chain becomes unsuitable for long-term
+validation, evidence sets shall be re-attested or wrapped in a new signed and
+trusted-timestamped preservation manifest without altering the originals.
+
+======================================================================
+8. SECURITY AND FAILURE REQUIREMENTS
+======================================================================
+
+8.1 Failure Handling
+
+If the TSA is unavailable:
+
+- Continue preserving raw artifacts;
+- Hash each artifact immediately;
+- Include artifacts in locally signed manifests;
+- Queue timestamp requests durably;
+- Record the outage;
+- Submit the earliest possible trusted timestamp when service resumes;
+- Mark evidence quality below E3 until successful; and
+- Do not backdate the trusted timestamp.
+
+If the collector clock is degraded:
+
+- Preserve the acquisition;
+- Flag clock confidence;
+- Continue using the independent timestamp service;
+- Alert operators; and
+- Preserve synchronization diagnostics.
+
+If immutable storage is unavailable:
+
+- Preserve data in protected local spool storage;
+- Calculate hashes immediately;
+- Sign spool manifests;
+- Timestamp the manifest when possible;
+- Alert operators;
+- Transfer to immutable storage once restored; and
+- Record the complete custody sequence.
+
+8.2 Separation of Duties
+
+No single routine operator shall be able to:
+
+- Modify raw evidence;
+- Delete raw evidence;
+- Change retention policy;
+- Replace a signing key;
+- Alter custody logs; and
+- approve the same high-impact action.
+
+======================================================================
+9. NEW AND MODIFIED REQUIREMENTS
+======================================================================
+
+REQ-SCOPE-001
+The platform shall track all federal election contests nationally.
+
+REQ-SCOPE-002
+The platform shall track every New Mexico contest and ballot question
+available from approved official results sources.
+
+REQ-SCOPE-003
+The canonical election model shall support national federal coverage before
+state collector implementation is frozen.
+
+REQ-EVID-001 - EVIDENTIARY ACQUISITION
+Every raw election-data artifact used by the Election Information Observatory
+shall be preserved byte-for-byte before parsing, assigned a collision-
+resistant cryptographic digest, incorporated into a tamper-evident append-only
+evidence chain, stored using immutable retention controls, replicated across
+administrative boundaries, and covered by an independently verifiable trusted
+timestamp conforming to RFC 3161. The system shall independently preserve
+source-reported time, acquisition time, system clock state, trusted timestamp
+time, processing history, and chain-of-custody events.
+
+REQ-EVID-002 - REPRODUCIBLE EVIDENCE PACKAGE
+The system shall export any cited observation as a self-contained evidence
+package allowing an independent examiner to verify the original bytes,
+cryptographic digest, acquisition metadata, trusted timestamp, certificate
+chain, processing lineage, and chain of custody without access to the
+production database.
+
+REQ-EVID-003 - EXACT-BYTE ORIGINAL
+The evidentiary original shall be the exact response body acquired from the
+source, preserved before transformation.
+
+REQ-EVID-004 - DISTINCT TIMES
+The system shall preserve source-reported, request, response, archive, hash,
+manifest, and trusted timestamp times as separate facts.
+
+REQ-EVID-005 - TRUSTED THIRD-PARTY TIME
+Production evidence shall be covered by an independently verifiable RFC 3161
+trusted timestamp.
+
+REQ-EVID-006 - CLOCK MONITORING
+Collector hosts shall continuously measure and preserve clock-synchronization
+state and uncertainty.
+
+REQ-EVID-007 - EVIDENCE CHAIN
+Artifacts shall be incorporated into a signed tamper-evident chain or Merkle
+manifest.
+
+REQ-EVID-008 - IMMUTABLE STORAGE
+Evidence shall be protected by versioning, retention controls, deletion
+protection, and separated administrative roles.
+
+REQ-EVID-009 - CROSS-BOUNDARY REPLICATION
+Production evidence shall be replicated to a second administrative boundary
+and cryptographically reverified.
+
+REQ-EVID-010 - APPEND-ONLY CUSTODY
+All evidence handling shall be recorded in an append-only custody ledger.
+
+REQ-EVID-011 - PROCESSING LINEAGE
+Every displayed or analyzed observation shall trace to an artifact, parser
+revision, configuration revision, and canonical mapping revision.
+
+REQ-EVID-012 - OFFLINE VERIFICATION
+Evidence packages shall be verifiable without production-system access.
+
+REQ-EVID-013 - TSA FAILURE MODE
+The system shall continue collection during TSA outages without falsely
+representing delayed timestamps as contemporaneous timestamps.
+
+REQ-EVID-014 - LONG-TERM VALIDATION
+The project shall preserve certificates, timestamp tokens, validation
+material, algorithms, policies, and verification reports required for later
+validation.
+
+REQ-EVID-015 - CLAIM LIMITATION
+The application shall accurately describe what the timestamp and archive do
+and do not prove.
+
+======================================================================
+10. ACCEPTANCE TESTS
+======================================================================
+
+AT-EVID-001
+Acquire a known test artifact, alter one byte in a copy, and demonstrate that
+the altered copy fails hash verification.
+
+AT-EVID-002
+Verify an RFC 3161 timestamp token using an offline evidence package.
+
+AT-EVID-003
+Demonstrate that source-reported time, response-completion time, and trusted
+timestamp time remain separately retrievable.
+
+AT-EVID-004
+Export an evidence package and verify it on a clean workstation without
+production access.
+
+AT-EVID-005
+Demonstrate Merkle inclusion for a selected artifact in a batch manifest.
+
+AT-EVID-006
+Simulate TSA unavailability and confirm that artifacts are hashed, chained,
+queued, and visibly marked below E3 until timestamping succeeds.
+
+AT-EVID-007
+Simulate clock offset beyond tolerance and confirm TIME_CONFIDENCE_DEGRADED is
+set without stopping raw preservation.
+
+AT-EVID-008
+Attempt modification and deletion using public-application credentials and
+confirm both operations are denied.
+
+AT-EVID-009
+Restore evidence from the secondary administrative boundary and verify all
+hashes, signatures, timestamp tokens, and custody events.
+
+AT-EVID-010
+Re-run the preserved parser revision against an archived artifact and compare
+the output to the stored parsed observation.
+
+AT-SCOPE-001
+Demonstrate ingestion and display of President, United States Senate, and all
+United States House contests in a national test election dataset.
+
+AT-SCOPE-002
+Demonstrate that non-voting delegate contests do not incorrectly alter the
+218-seat House majority calculation.
+
+AT-SCOPE-003
+Demonstrate comprehensive ingestion of all contest categories contained in a
+New Mexico official results export.
+
+======================================================================
+11. REQUIRED FOLLOW-ON ARTIFACTS
+======================================================================
+
+The following project artifacts shall be created or revised:
+
+1. National Federal and New Mexico Coverage Matrix
+2. 50-State, D.C., and Territory Official Source Acquisition Matrix
+3. Digital Evidence Architecture
+4. Trusted Timestamp Authority Evaluation Matrix
+5. Evidence Retention and Legal Hold Policy
+6. Chain-of-Custody Procedure
+7. Cryptographic Key Management Procedure
+8. Clock Synchronization and Monitoring Standard
+9. Evidence Package Schema
+10. Offline Verification Utility Specification
+11. Custodian/Technical Declaration Data Report Template
+12. National Requirements Traceability Matrix
+13. National Election-Night Operations Runbook
+14. Long-Term Signature and Timestamp Validation Plan
+15. Legal and Licensing Review Checklist
+
+======================================================================
+12. IMPLEMENTATION PRIORITY
+======================================================================
+
+The following are Priority 0 and must be designed before production collector
+implementation is frozen:
+
+- National federal contest model;
+- Comprehensive New Mexico contest model;
+- Exact-byte raw acquisition;
+- Cryptographic hashing;
+- Distinct timestamp model;
+- Clock monitoring;
+- Immutable storage;
+- Append-only custody ledger;
+- RFC 3161 trusted timestamp integration;
+- Signed manifest and Merkle design;
+- Evidence-package format;
+- Offline verification; and
+- Cross-boundary replication.
+
+======================================================================
+13. CONCLUSION
+======================================================================
+
+The Election Information Observatory is nationally scoped for all federal
+races and comprehensively scoped for all New Mexico races and ballot
+questions. Its raw-data archive is not an ordinary application log. It is a
+dedicated evidence system designed to preserve exact source bytes, provenance,
+clock state, cryptographic identity, independent proof of existence,
+processing lineage, and chain of custody.
+
+The system's evidentiary design shall support a precise and limited claim:
+that identified bytes were acquired, preserved, and independently attested as
+existing no later than a verifiable time. All broader claims about what a
+source generated, what other users observed, the truth of the content, or the
+legal effect of the evidence require additional facts and appropriate legal
+analysis.
+
+END OF ADDENDUM 001

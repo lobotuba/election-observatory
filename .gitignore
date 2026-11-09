@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# runtime data must never be committed (archive, database, signing keys, logs)
+electionTracker-data/
+*.db
+*.db-wal
+*.db-shm
+keys/
+*.pem.key
+STOP
+pids.txt

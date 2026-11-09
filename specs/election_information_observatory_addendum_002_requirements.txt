@@ -1,0 +1,1245 @@
+ELECTION INFORMATION OBSERVATORY
+SPECIFICATION ADDENDUM 002
+Revised Requirements for Evidence-Grade Acquisition, National Election Semantics, and Long-Term Verification
+Version: 1.0 Draft
+Date: 2026-11-03
+Project repository: specs/
+
+======================================================================
+1. PURPOSE, STATUS, AND PRECEDENCE
+======================================================================
+
+1.1 Purpose
+
+This addendum closes material gaps identified during review of Addendum 001.
+It establishes revised and additional requirements for:
+
+- Source endpoint authentication;
+- Complete HTTP and browser acquisition bundles;
+- Dynamic-page and dependent-resource capture;
+- Cryptographic protection of evidentiary logs;
+- Source-configuration governance;
+- Reproducible collection and parsing environments;
+- Long-term evidence records and cryptographic renewal;
+- Algorithm agility;
+- Content-addressed evidence storage;
+- Correction and revision classification;
+- Missing-data semantics;
+- National federal-election edge cases;
+- Candidate and contest identity;
+- Legal holds;
+- Separation of duties and resistance to privileged-administrator compromise;
+- Independent external anchoring; and
+- Evidence-package access profiles.
+
+1.2 Status
+
+This document is a requirements addendum. It does not replace the system's
+complete master specification. It modifies and supplements Addendum 001.
+
+1.3 Precedence
+
+Where this addendum conflicts with Addendum 001, this addendum controls.
+Where neither addendum addresses a subject, the master specification remains
+in force.
+
+1.4 Legal Qualification
+
+The requirements are designed to support authentication, integrity,
+reproducibility, and defensible records practices. They do not guarantee
+admissibility or establish the truth of acquired content. Legal counsel shall
+review final evidence-retention, certification, legal-hold, disclosure, and
+production procedures before production use.
+
+======================================================================
+2. REVISED EVIDENTIARY OBJECT MODEL
+======================================================================
+
+2.1 Fundamental Evidentiary Object
+
+The fundamental evidentiary object shall be the ACQUISITION EVENT, not merely
+the downloaded response body.
+
+An acquisition event shall bind together:
+
+- Source identity evidence;
+- Network endpoint evidence;
+- Request evidence;
+- Response evidence;
+- Content evidence;
+- Browser-render evidence, when applicable;
+- Clock-state evidence;
+- Cryptographic digests;
+- Manifest and Merkle inclusion evidence;
+- Trusted timestamps;
+- Custody events;
+- Processing lineage; and
+- Verification results.
+
+2.2 Acquisition Bundle
+
+Each acquisition event shall produce an acquisition bundle with a unique
+acquisition_id. A bundle may contain:
+
+ACQUISITION/{acquisition_id}/
+    SOURCE_IDENTITY/
+        source_registry_record.json
+        source_configuration.json
+        dns_observation.json
+        tls_session.json
+        server_certificate.der
+        server_certificate_chain/
+
+    REQUEST/
+        request_metadata.json
+        request_headers_public.json
+        request_headers_restricted.enc
+        request_body.bin
+
+    RESPONSE/
+        response_metadata.json
+        response_headers.json
+        response.bin
+        redirect_chain.json
+
+    BROWSER/
+        browser_metadata.json
+        network_log.json
+        dom_snapshot.html
+        screenshot.png
+        console_log.json
+        dependent_resources_manifest.json
+
+    TIME/
+        clock_status.json
+        source_reported_time.json
+
+    INTEGRITY/
+        digests.json
+        bundle_manifest.json
+        bundle_manifest.sig
+        merkle_proof.json
+        timestamp_request.tsq
+        timestamp_response.tsr
+        evidence_record.ers
+
+    PROCESSING/
+        collection_release.json
+        parser_release.json
+        parsed_observation.json
+        normalization.json
+        validation_findings.json
+
+    CUSTODY/
+        custody_events.json
+        replication_events.json
+        verification_events.json
+
+Not every source requires every component. The manifest shall explicitly mark
+each component as PRESENT, NOT_APPLICABLE, NOT_COLLECTED, COLLECTION_FAILED,
+RESTRICTED, or WITHHELD.
+
+2.3 Artifact and Acquisition Distinction
+
+The system shall distinguish:
+
+- artifact_id: Identity of unique byte content;
+- acquisition_id: Identity of an observation event;
+- bundle_id: Identity of the complete evidentiary acquisition bundle; and
+- evidence_record_id: Identity of the long-term validation record.
+
+Identical bytes acquired 100 times may map to one content-addressed artifact
+and 100 acquisition events. Each acquisition event remains independently
+preserved because it establishes observation at a distinct time.
+
+======================================================================
+3. SOURCE ENDPOINT AUTHENTICATION REQUIREMENTS
+======================================================================
+
+REQ-EVID-016 - SOURCE ENDPOINT AUTHENTICATION
+
+For every network acquisition, the system shall preserve evidence sufficient
+to identify the endpoint contacted and the security context of the connection.
+
+Required fields include:
+
+- Original requested URL;
+- Final resolved URL;
+- Complete redirect chain;
+- Request hostname;
+- DNS query time;
+- DNS resolver identity;
+- DNS answers used;
+- Remote IP address;
+- Remote port;
+- Collector host identity;
+- Collector source IP where observable;
+- Proxy, VPN, gateway, or NAT path identifier where applicable;
+- Server Name Indication hostname;
+- TLS protocol version;
+- TLS cipher suite;
+- Server leaf certificate;
+- Server certificate chain;
+- Certificate fingerprints;
+- Subject Alternative Names;
+- Certificate validity interval;
+- Certificate validation result;
+- Certificate revocation/status result where available; and
+- HTTP protocol version.
+
+Acceptance criteria:
+
+- An examiner can determine which hostname and network endpoint were contacted.
+- An examiner can verify the preserved certificate fingerprints.
+- Redirects cannot be silently omitted.
+- Endpoint validation failures remain in the record and trigger an alert.
+
+REQ-EVID-018 - DNS AND CERTIFICATE ANOMALY HANDLING
+
+The system shall alert and preserve a separate event when:
+
+- DNS answers materially change;
+- A certificate changes;
+- Certificate validation fails;
+- A hostname redirects to a new registrable domain;
+- An endpoint unexpectedly changes hosting provider or autonomous system;
+- Plain HTTP replaces HTTPS; or
+- TLS security falls below approved policy.
+
+No anomalous acquisition shall be discarded solely because of the anomaly.
+It shall be preserved and marked for review.
+
+======================================================================
+4. HTTP TRANSACTION AND SENSITIVE METADATA REQUIREMENTS
+======================================================================
+
+REQ-EVID-019 - COMPLETE TRANSACTION METADATA
+
+The acquisition bundle shall preserve:
+
+- HTTP method;
+- Full URL;
+- Query parameters;
+- Request headers;
+- Request body where present;
+- Response status;
+- Response headers;
+- Response body;
+- Redirects;
+- Retry history;
+- Connection timing;
+- Content encoding;
+- Transfer encoding;
+- Decompression status;
+- Byte length before and after decompression; and
+- Cache-related headers.
+
+REQ-EVID-020 - SENSITIVE-HEADER SEGREGATION
+
+Authentication headers, session tokens, cookies, API keys, internal hostnames,
+and similar sensitive material shall not be placed in public evidence
+packages.
+
+The system shall:
+
+- Record that a sensitive field existed;
+- Preserve a cryptographic commitment to the original restricted record;
+- Encrypt the restricted metadata;
+- Apply a separate access-control policy;
+- Log every access; and
+- Support production of a redacted public representation and a restricted
+  legal/security representation.
+
+Secret values shall not be written into routine application logs.
+
+REQ-EVID-021 - CDN AND CACHE EVIDENCE
+
+Where present, preserve headers and observations relevant to caching,
+including:
+
+- Date;
+- Age;
+- ETag;
+- Last-Modified;
+- Cache-Control;
+- Expires;
+- Via;
+- Vary;
+- Warning;
+- X-Cache or provider-equivalent headers;
+- CDN request identifiers; and
+- Edge-location identifiers.
+
+The comparison engine shall use these fields when evaluating apparent source
+latency or differing versions.
+
+======================================================================
+5. DYNAMIC PAGE AND BROWSER ACQUISITION REQUIREMENTS
+======================================================================
+
+REQ-EVID-022 - DYNAMIC ACQUISITION BUNDLE
+
+For web pages whose displayed election data depends on JavaScript, XHR, fetch,
+GraphQL, WebSocket, Server-Sent Events, or other dependent requests, the system
+shall preserve a browser acquisition bundle.
+
+The bundle shall include, where technically and legally feasible:
+
+- Initial HTML response;
+- Election-data API responses;
+- Relevant XHR/fetch responses;
+- WebSocket or Server-Sent Event messages used to update displayed results;
+- DOM snapshot after defined stabilization criteria;
+- Full-page screenshot;
+- Browser network log;
+- Browser console log;
+- Browser name and version;
+- Browser binary digest;
+- Operating-system or container image digest;
+- Viewport;
+- Device scale factor;
+- User agent;
+- Locale;
+- Browser time zone;
+- JavaScript enabled state;
+- Capture start and completion time; and
+- Dependent-resource manifest.
+
+REQ-EVID-023 - TRANSPORT, RENDER, AND APPLICATION SEPARATION
+
+The system shall treat the following as distinct evidence layers:
+
+1. TRANSPORT EVIDENCE
+   Raw HTTP/API traffic and responses.
+
+2. RENDER EVIDENCE
+   DOM snapshots and screenshots showing what the controlled browser rendered.
+
+3. APPLICATION EVIDENCE
+   Parsed, normalized, and derived election observations.
+
+A screenshot shall not substitute for raw machine-readable data when the raw
+data is available.
+
+REQ-EVID-024 - BROWSER STABILIZATION RULE
+
+The browser collector shall use a documented stabilization rule, such as:
+
+- Required selector present;
+- Relevant network requests completed;
+- Network idle interval reached;
+- Data timestamp located;
+- Maximum capture timeout reached; and
+- Final screenshot and DOM captured together.
+
+The exact rule and result shall be included in browser_metadata.json.
+
+REQ-EVID-025 - ACQUISITION-BUNDLE INTEGRITY
+
+Each component in a bundle shall have its own digest. The bundle manifest shall
+list all components, component status, digest algorithm, digest value, byte
+length, collection time, and sensitivity profile. The signed bundle manifest,
+not a screenshot alone, is the integrity root for the acquisition.
+
+======================================================================
+6. EVIDENTIARY AUDIT LOGGING REQUIREMENTS
+======================================================================
+
+REQ-EVID-017 - EVIDENTIARY AUDIT LOGGING
+
+Logs supporting authenticity and chain of custody shall receive evidence-grade
+protection comparable to election artifacts.
+
+Protected logs shall include:
+
+- Collector activity;
+- Collection errors;
+- Authentication events;
+- Authorization events;
+- Administrative actions;
+- Clock synchronization;
+- Storage operations;
+- Retention-policy changes;
+- TSA requests and responses;
+- HSM and key-management actions;
+- Source-configuration changes;
+- Deployment actions;
+- Parser executions;
+- Manual reviews;
+- Evidence access;
+- Evidence exports;
+- Legal-hold actions; and
+- Verification results.
+
+REQ-EVID-026 - AUDIT LOG INTEGRITY
+
+Audit logs shall be:
+
+- Append-only;
+- Time synchronized;
+- Digitally signed or cryptographically chained;
+- Replicated to a separate security boundary;
+- Protected from alteration by routine administrators;
+- Included in periodic trusted-timestamped manifests;
+- Retained according to evidence-retention policy; and
+- Searchable by evidence ID, acquisition ID, actor, action, and time.
+
+REQ-EVID-027 - AUDIT LOG COMPLETENESS MONITORING
+
+The system shall alert on:
+
+- Missing log intervals;
+- Sequence gaps;
+- Invalid signatures;
+- Unexpected clock discontinuities;
+- Logging-service failure;
+- Audit-store replication failure; and
+- Administrative action without a corresponding audit event.
+
+======================================================================
+7. SOURCE CONFIGURATION GOVERNANCE REQUIREMENTS
+======================================================================
+
+REQ-CONFIG-001 - VERSIONED SOURCE CONFIGURATION
+
+Every source configuration shall be version controlled and contain:
+
+- Source ID;
+- Organization and jurisdiction;
+- Official-source classification;
+- Approved endpoint URLs;
+- Collection method;
+- Adapter version;
+- Polling policy;
+- Authentication method;
+- Expected formats;
+- Expected certificates or domains where appropriate;
+- Terms and licensing status;
+- Activation and expiration dates;
+- Owner;
+- Reviewer;
+- Approval record; and
+- Configuration digest.
+
+REQ-CONFIG-002 - CONFIGURATION CHANGE CONTROL
+
+Every production configuration change shall record:
+
+- Change ID;
+- Requestor;
+- Author;
+- Independent reviewer;
+- Approval;
+- Reason;
+- Previous version;
+- New version;
+- Test evidence;
+- Activation time;
+- Rollback method;
+- Git commit or equivalent revision; and
+- Digital signature or signed release manifest.
+
+REQ-CONFIG-003 - SOURCE VERIFICATION REVIEW
+
+Before a P0 official source becomes active for an election, a documented source
+verification review shall confirm:
+
+- The source is controlled or designated by the applicable authority;
+- The endpoint is correct;
+- The expected contests and jurisdictions are present;
+- Update behavior is understood;
+- Timestamp behavior is understood;
+- Download formats are tested;
+- Alternate/fallback sources are recorded;
+- Terms and rate limits are reviewed; and
+- A second person approves activation.
+
+REQ-CONFIG-004 - CONFIGURATION EVIDENCE
+
+The active source configuration and its approval record shall be included by
+reference and digest in each acquisition bundle.
+
+======================================================================
+8. REPRODUCIBLE SOFTWARE ENVIRONMENT REQUIREMENTS
+======================================================================
+
+REQ-REPRO-001 - SIGNED RELEASE IDENTITY
+
+Every production collector, parser, normalizer, comparison service, and
+verification utility shall execute from an identifiable signed release.
+
+Preserve:
+
+- Source-control commit;
+- Signed tag;
+- Build identifier;
+- OCI container image digest or equivalent package digest;
+- Container image or durable artifact;
+- Software Bill of Materials;
+- Dependency lockfiles;
+- Runtime version;
+- Base image digest;
+- Build workflow identity;
+- Build provenance;
+- Configuration schema version; and
+- Database migration version.
+
+REQ-REPRO-002 - SBOM FORMAT
+
+The project shall generate a machine-readable SBOM in SPDX, CycloneDX, or both.
+The selected format and version shall be documented.
+
+REQ-REPRO-003 - REPRODUCIBLE PARSING
+
+For every parsed observation, the system shall identify the exact parser
+release, container digest, configuration digest, canonical mapping version,
+and input artifact digest.
+
+REQ-REPRO-004 - PRESERVED EXECUTION ENVIRONMENT
+
+Production release images and required dependencies shall be retained for the
+duration of the corresponding evidence-retention period or preserved through
+a documented emulation/migration strategy.
+
+REQ-REPRO-005 - RELEASE VERIFICATION
+
+Before election-night use, release signatures, image digests, SBOM generation,
+and parser replay shall pass automated verification.
+
+======================================================================
+9. CRYPTOGRAPHIC AGILITY AND LONG-TERM EVIDENCE RECORDS
+======================================================================
+
+REQ-CRYPTO-001 - ALGORITHM-AGILE DIGEST MODEL
+
+Digests shall be stored as a collection, not as a single fixed field.
+
+Required structure:
+
+- Algorithm identifier;
+- Algorithm object identifier where applicable;
+- Digest value;
+- Calculation time;
+- Implementation and version;
+- Input byte length; and
+- Verification status.
+
+SHA-256 shall be the minimum initial digest algorithm. The design shall permit
+SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512, or successor algorithms without
+schema replacement.
+
+REQ-CRYPTO-002 - ALGORITHM POLICY
+
+A versioned cryptographic policy shall define approved:
+
+- Digest algorithms;
+- Signature algorithms;
+- Key types and sizes;
+- Timestamp algorithms;
+- Certificate profiles;
+- TLS versions;
+- Renewal thresholds; and
+- Deprecation procedures.
+
+REQ-CRYPTO-003 - EVIDENCE RECORD STANDARD
+
+The long-term archive design shall evaluate and document use of an Evidence
+Record Syntax compatible with RFC 4998 or an equivalent standards-based
+long-term evidence-record mechanism.
+
+The selected mechanism shall support:
+
+- Archive timestamps;
+- Timestamp chains or sequences;
+- Renewal without altering original artifacts;
+- Merkle-tree or hash-tree inclusion;
+- Verification after certificate expiration; and
+- Migration before cryptographic algorithms become unsuitable.
+
+REQ-CRYPTO-004 - PERIODIC EVIDENCE RENEWAL
+
+The system shall periodically evaluate evidence records and renew protection
+before:
+
+- A digest algorithm becomes unsuitable;
+- A signing algorithm becomes unsuitable;
+- A TSA certificate expires without sufficient preserved validation material;
+- A trust anchor is retired;
+- A storage format becomes unsupported; or
+- Verification software becomes unavailable.
+
+Renewal shall wrap or re-attest existing evidence. It shall not alter the
+original bytes or erase prior timestamp chains.
+
+REQ-CRYPTO-005 - DUAL TRUST ANCHOR
+
+Election-night root manifests shall be anchored through at least two
+independent mechanisms selected from:
+
+- Primary RFC 3161 TSA;
+- Secondary independent RFC 3161 TSA;
+- Public transparency log;
+- Independent archival partner; or
+- Another approved external proof-of-publication service.
+
+At least one anchor shall be outside the operator's administrative control.
+
+REQ-CRYPTO-006 - ANCHOR FAILURE HANDLING
+
+Failure of one trust anchor shall not stop acquisition. The system shall:
+
+- Preserve and hash artifacts;
+- Sign local manifests;
+- Submit to available anchors;
+- Queue failed anchor requests;
+- Record the outage;
+- Preserve the actual later attestation time; and
+- Avoid representing delayed anchoring as contemporaneous.
+
+======================================================================
+10. CONTENT-ADDRESSED STORAGE REQUIREMENTS
+======================================================================
+
+REQ-STORE-001 - CONTENT ADDRESSING
+
+Unique byte content shall receive an artifact ID derived from an approved
+cryptographic digest or shall be indexed by that digest.
+
+REQ-STORE-002 - ACQUISITION RETENTION
+
+Deduplication of content shall not deduplicate or erase acquisition events.
+Every observation time, endpoint, request, clock state, and custody event shall
+remain separately recorded.
+
+REQ-STORE-003 - REFERENCE INTEGRITY
+
+Every acquisition referencing a shared artifact shall include:
+
+- Artifact ID;
+- Artifact digest;
+- Acquisition ID;
+- Bundle ID;
+- Verification result; and
+- Immutable storage location reference.
+
+REQ-STORE-004 - SAFE GARBAGE COLLECTION
+
+No artifact may be deleted while referenced by:
+
+- An acquisition event;
+- Evidence record;
+- Legal hold;
+- Exported evidence package;
+- Certification package; or
+- Retention policy.
+
+======================================================================
+11. DATA SEMANTICS AND REVISION REQUIREMENTS
+======================================================================
+
+REQ-DATA-001 - MISSING DATA STATES
+
+The system shall distinguish at minimum:
+
+- ZERO;
+- NULL_UNKNOWN;
+- NOT_PUBLISHED;
+- NOT_APPLICABLE;
+- NOT_YET_OBSERVED;
+- SOURCE_UNAVAILABLE;
+- PARSER_FAILED;
+- WITHHELD;
+- REDACTED;
+- CONFLICTING; and
+- UNKNOWN_REASON.
+
+A missing value shall never be silently converted to zero.
+
+REQ-DATA-002 - CORRECTION AND CHANGE TAXONOMY
+
+Every material change shall be classified, where evidence permits, as one of:
+
+- NORMAL_COUNT_UPDATE;
+- SOURCE_CORRECTION;
+- SOURCE_RETRACTION;
+- SOURCE_REPUBLICATION;
+- PARSER_CORRECTION;
+- NORMALIZATION_CORRECTION;
+- CANONICAL_MAPPING_CORRECTION;
+- APPLICATION_DISPLAY_CORRECTION;
+- CANVASS_ADJUSTMENT;
+- RECOUNT_ADJUSTMENT;
+- CERTIFICATION_ADJUSTMENT;
+- AMENDED_CERTIFICATION;
+- LATE_BALLOT_INCLUSION;
+- BALLOT_METHOD_RECLASSIFICATION;
+- UNKNOWN_REVISION.
+
+REQ-DATA-003 - REVISION PROVENANCE
+
+A correction or revision shall record:
+
+- Prior observation;
+- New observation;
+- Classification;
+- Detecting system or reviewer;
+- Supporting artifact(s);
+- Time first observed;
+- Time classified;
+- Confidence;
+- Review status; and
+- Explanatory note.
+
+REQ-DATA-004 - NO SILENT REPLACEMENT
+
+Corrections to parser logic, canonical mappings, or displays shall create new
+versioned outputs. Prior outputs shall remain preserved and traceable.
+
+======================================================================
+12. NATIONAL FEDERAL ELECTION SEMANTICS
+======================================================================
+
+REQ-ELECT-001 - ELECTION STAGE
+
+The canonical model shall support:
+
+- PRIMARY;
+- PRIMARY_RUNOFF;
+- CAUCUS;
+- CONVENTION;
+- GENERAL;
+- GENERAL_RUNOFF;
+- SPECIAL;
+- SPECIAL_RUNOFF;
+- RANKED_CHOICE_ROUND;
+- RECOUNT;
+- CANVASS;
+- CERTIFICATION;
+- AMENDED_CERTIFICATION; and
+- OTHER_SOURCE_DEFINED_STAGE.
+
+REQ-ELECT-002 - PRESIDENTIAL ALLOCATION
+
+The model shall support:
+
+- Statewide winner-take-all allocation;
+- Maine congressional-district allocation;
+- Nebraska congressional-district allocation;
+- Statewide and district electoral-vote units;
+- Elector slates;
+- Write-in presidential candidates;
+- Fusion or cross-endorsed ballot lines when present; and
+- Separation of projected electoral votes from formally appointed electors.
+
+REQ-ELECT-003 - SENATE CONTESTS
+
+The model shall support:
+
+- Regular and special Senate contests occurring in the same jurisdiction and
+  cycle;
+- Seat class;
+- Vacancy status;
+- Runoffs;
+- Top-two or jungle-primary systems;
+- Independents;
+- Documented caucusing alignment; and
+- Separation of seat counts from vice-presidential tie-breaking analysis.
+
+REQ-ELECT-004 - HOUSE CONTESTS
+
+The model shall support:
+
+- Numbered districts;
+- At-large districts;
+- Special elections;
+- Runoffs;
+- Ranked-choice counting rounds;
+- Non-voting delegates;
+- Resident commissioner contests; and
+- Exclusion of non-voting seats from the 218-seat majority calculation.
+
+REQ-ELECT-005 - CONTEST STATUS
+
+Contest status shall distinguish:
+
+- NOT_STARTED;
+- POLLS_OPEN;
+- POLLS_CLOSED;
+- REPORTING;
+- LEADER_ONLY;
+- PROJECTED_BY_SOURCE;
+- UNOFFICIAL_COMPLETE;
+- RUNOFF_REQUIRED;
+- RECOUNT_PENDING;
+- RECOUNT_IN_PROGRESS;
+- CANVASSED;
+- CERTIFIED;
+- AMENDED;
+- VACANT;
+- CANCELED; and
+- UNKNOWN.
+
+REQ-ELECT-006 - SOURCE-SPECIFIC CALLS
+
+A race call shall always be attributed to a source. The application shall not
+collapse differing source calls into a single unattributed truth value.
+
+======================================================================
+13. CANDIDATE, PARTY, AND CONTEST IDENTITY REQUIREMENTS
+======================================================================
+
+REQ-ID-001 - CANONICAL CANDIDATE IDENTITY
+
+Candidates shall not be keyed solely by name. A canonical candidate record
+shall support:
+
+- Canonical candidate ID;
+- Ballot name;
+- Full name where available;
+- Source-specific IDs;
+- Contest-specific candidacy ID;
+- Party or affiliation;
+- Ballot line;
+- Write-in status;
+- Incumbency as source-reported metadata;
+- Name variants; and
+- Crosswalk provenance.
+
+REQ-ID-002 - CANDIDACY VERSUS PERSON
+
+The system shall distinguish a person from a candidacy. The same person may
+have different candidacies across offices, elections, parties, or ballot
+lines.
+
+REQ-ID-003 - PARTY AND FUSION SUPPORT
+
+The model shall support:
+
+- Major parties;
+- Minor parties;
+- Independent or unaffiliated candidates;
+- Multiple ballot lines;
+- Fusion candidacies;
+- Source-specific party labels; and
+- Party-label changes without rewriting historical records.
+
+REQ-ID-004 - CONTEST IDENTITY
+
+Canonical contest identity shall include:
+
+- Election;
+- Stage;
+- Office;
+- Jurisdiction;
+- District;
+- Seat/class where applicable;
+- Term type;
+- Special-election indicator; and
+- Vote-for-N rule.
+
+REQ-ID-005 - CROSSWALK REVIEW
+
+Ambiguous candidate or contest mappings shall be marked for human review and
+shall not be silently merged.
+
+======================================================================
+14. LEGAL HOLD AND RETENTION REQUIREMENTS
+======================================================================
+
+REQ-HOLD-001 - LEGAL HOLD OBJECT
+
+A legal hold shall include:
+
+- Hold ID;
+- Issuing authority;
+- Scope;
+- Reason;
+- Issued time;
+- Issued by;
+- Evidence IDs;
+- Source IDs;
+- Election/contest scope;
+- Custodians;
+- Systems covered;
+- Review date;
+- Release time; and
+- Released by.
+
+REQ-HOLD-002 - HOLD EFFECT
+
+An active legal hold shall prevent:
+
+- Evidence-object expiration;
+- Artifact deletion;
+- Log expiration;
+- Source-configuration deletion;
+- Release-image deletion;
+- SBOM deletion;
+- Key or certificate destruction that would impair verification;
+- Timestamp-validation-material deletion; and
+- Custody-record deletion.
+
+REQ-HOLD-003 - HOLD AUDITABILITY
+
+Placement, modification, review, and release of a legal hold shall require
+authorization and shall create protected audit events.
+
+REQ-HOLD-004 - RETENTION POLICY
+
+A versioned retention policy shall define retention by evidence class,
+election type, legal status, licensing restriction, and hold status. Automatic
+disposition shall be disabled until legal and records-management review is
+complete.
+
+======================================================================
+15. SEPARATION OF DUTIES AND PRIVILEGED-THREAT REQUIREMENTS
+======================================================================
+
+REQ-SEC-001 - INDEPENDENT TRUST BOUNDARIES
+
+The design shall separate, where practicable:
+
+- Collection workers;
+- Primary immutable archive;
+- Secondary archive;
+- Timestamp authorities;
+- Manifest-signing keys;
+- Audit-log store;
+- Public tracker;
+- Administrative control plane; and
+- Verification environment.
+
+REQ-SEC-002 - NO SINGLE-ADMINISTRATOR REWRITE
+
+No single administrator or credential shall be capable of simultaneously:
+
+- Modifying collector configuration;
+- Replacing evidence in all archives;
+- replacing manifest-signing keys;
+- Altering audit logs;
+- Removing external anchors; and
+- Deleting retained evidence.
+
+REQ-SEC-003 - DUAL CONTROL
+
+The following actions shall require dual authorization or equivalent
+segregation of duties:
+
+- Retention-policy reduction;
+- Legal-hold release;
+- Evidence deletion after retention expiration;
+- Signing-key replacement;
+- Trust-anchor replacement;
+- P0 source endpoint change during an active election;
+- Audit-log policy change; and
+- Disabling cross-boundary replication.
+
+REQ-SEC-004 - BREAK-GLASS ACCESS
+
+Emergency access shall be time limited, strongly authenticated, separately
+logged, automatically reviewed, and incapable of suppressing its own audit
+trail.
+
+======================================================================
+16. EVIDENCE PACKAGE ACCESS PROFILES
+======================================================================
+
+REQ-PACK-001 - ACCESS PROFILES
+
+Evidence packages shall support at least:
+
+PUBLIC
+- Raw publicly redistributable source content;
+- Public response headers;
+- Digests;
+- Trusted timestamps;
+- Public manifest and inclusion proof;
+- Public verification instructions.
+
+RESEARCH
+- PUBLIC content;
+- Additional normalized records;
+- Methodology metadata;
+- Approved bulk-export fields.
+
+INTERNAL
+- Operational metadata;
+- Internal custody references;
+- Non-secret system identifiers;
+- Detailed parser and configuration lineage.
+
+LEGAL
+- Full chain of custody;
+- Restricted acquisition metadata as authorized;
+- Certification-support report;
+- Legal-hold status;
+- Known anomalies.
+
+SECURITY
+- Network identifiers;
+- Complete security logs;
+- Restricted headers;
+- Internal hostnames;
+- Key-management and access events, subject to least privilege.
+
+REQ-PACK-002 - REDACTION MANIFEST
+
+Every redacted package shall include a redaction manifest identifying fields
+or files withheld and the applicable reason category without exposing the
+restricted value.
+
+REQ-PACK-003 - EXPORT AUDIT
+
+Every evidence-package export shall record requester, approver where required,
+profile, scope, time, package digest, and delivery method.
+
+======================================================================
+17. CERTIFICATION SUPPORT REQUIREMENTS
+======================================================================
+
+REQ-CERT-001 - FACTUAL CERTIFICATION SUPPORT REPORT
+
+The system shall generate a factual technical report that includes:
+
+- Evidence ID;
+- Source and endpoint;
+- Acquisition method;
+- Collection software release;
+- Configuration version;
+- Relevant timestamps;
+- Clock-confidence status;
+- Artifact digests;
+- Trusted timestamp verification;
+- Manifest and Merkle verification;
+- Storage and replication status;
+- Custody history;
+- Processing lineage;
+- Known anomalies; and
+- Verification instructions.
+
+REQ-CERT-002 - NO AUTOMATED LEGAL CONCLUSION
+
+The report shall not state that evidence is admissible, self-authenticating, or
+compliant with a particular evidentiary rule without approved legal language.
+
+REQ-CERT-003 - TEMPLATE REVIEW
+
+Certification and declaration templates shall be reviewed by qualified legal
+counsel before production use and whenever materially changed.
+
+======================================================================
+18. NEW ACCEPTANCE TESTS
+======================================================================
+
+AT-002-001 - ENDPOINT IDENTITY
+Capture a controlled HTTPS source and verify preservation of DNS answers,
+remote IP, TLS protocol, cipher suite, certificate, certificate chain,
+fingerprint, SNI, and redirect chain.
+
+AT-002-002 - CERTIFICATE CHANGE
+Replace the test endpoint certificate and verify creation of an anomaly event
+without loss of acquisition.
+
+AT-002-003 - COMPLETE HTTP TRANSACTION
+Verify that request, redirect, response, headers, body, timing, encoding, and
+cache metadata are represented in the bundle manifest.
+
+AT-002-004 - SENSITIVE HEADER CONTROL
+Verify that secrets are absent from PUBLIC and RESEARCH packages, retained in
+an encrypted restricted tier when required, and represented by a redaction or
+commitment record.
+
+AT-002-005 - DYNAMIC PAGE CAPTURE
+Capture a page whose results load through an API call and verify preservation
+of HTML, API response, DOM, screenshot, network log, browser metadata, and
+component digests.
+
+AT-002-006 - WEBSOCKET OR SSE UPDATE
+Using a controlled source, verify capture or explicit limitation reporting for
+results delivered through WebSocket or Server-Sent Events.
+
+AT-002-007 - AUDIT LOG TAMPER DETECTION
+Modify a copied audit-log segment and verify that signature or chain
+validation fails.
+
+AT-002-008 - CONFIGURATION CHANGE CONTROL
+Change a P0 endpoint and verify author, reviewer, approval, test evidence,
+activation time, configuration digest, and rollback data.
+
+AT-002-009 - REPRODUCIBLE PARSER
+Run the preserved parser container against a preserved artifact and verify the
+stored parsed output or explain a deterministic, documented difference.
+
+AT-002-010 - SBOM AND IMAGE VERIFICATION
+Verify signed release, OCI image digest, SBOM, dependency lockfile, and build
+provenance for a production collector.
+
+AT-002-011 - ALGORITHM AGILITY
+Add a second approved digest algorithm without schema migration or loss of the
+prior digest.
+
+AT-002-012 - EVIDENCE RECORD RENEWAL
+Create a test evidence record, add a later archive timestamp/renewal, and
+verify the complete timestamp chain without changing the original artifact.
+
+AT-002-013 - DUAL ANCHOR
+Verify an election-root manifest against two independent trust anchors.
+
+AT-002-014 - CONTENT DEDUPLICATION
+Acquire identical content repeatedly and verify one content artifact, multiple
+acquisition events, and complete time/custody records.
+
+AT-002-015 - MISSING DATA
+Verify that zero votes, not published, source unavailable, parser failed, and
+unknown are stored and displayed distinctly.
+
+AT-002-016 - REVISION TAXONOMY
+Replay normal count updates, source correction, parser correction, recount
+adjustment, and amended certification; verify distinct classifications and
+provenance.
+
+AT-002-017 - PRESIDENTIAL DISTRICT ALLOCATION
+Verify correct electoral-vote representation for statewide and congressional-
+district allocations in Maine and Nebraska test datasets.
+
+AT-002-018 - SENATE REGULAR AND SPECIAL
+Verify simultaneous regular and special Senate contests remain distinct.
+
+AT-002-019 - NON-VOTING HOUSE SEAT
+Verify a delegate or resident-commissioner race does not alter the 218-seat
+majority calculation.
+
+AT-002-020 - CANDIDATE IDENTITY
+Verify same-name candidates, write-ins, and multiple ballot lines are not
+silently merged.
+
+AT-002-021 - LEGAL HOLD
+Apply a legal hold and verify prevention of artifact, log, image, certificate,
+key-validation material, and configuration deletion.
+
+AT-002-022 - SINGLE-ADMINISTRATOR LIMIT
+Demonstrate that one administrator cannot rewrite all evidence copies, audit
+logs, signatures, and external anchors.
+
+AT-002-023 - EVIDENCE ACCESS PROFILE
+Generate PUBLIC, RESEARCH, INTERNAL, LEGAL, and SECURITY packages and verify
+field-level restrictions and redaction manifests.
+
+AT-002-024 - BREAK-GLASS REVIEW
+Exercise emergency access and verify strong authentication, time limit,
+independent audit trail, and mandatory review.
+
+======================================================================
+19. IMPLEMENTATION PRIORITIES
+======================================================================
+
+P0 - REQUIRED BEFORE COLLECTOR ARCHITECTURE FREEZE
+
+- Acquisition-event object model;
+- Source endpoint authentication;
+- Complete HTTP transaction model;
+- Dynamic acquisition bundles;
+- Bundle manifests and component digests;
+- Evidentiary audit logs;
+- Versioned source configuration;
+- Signed release and reproducible environment model;
+- Algorithm-agile digest schema;
+- Long-term evidence-record design;
+- Missing-data semantics;
+- Correction taxonomy;
+- National election-stage model;
+- Presidential, Senate, and House edge-case model;
+- Candidate/candidacy/contest identity model;
+- Independent trust-boundary design; and
+- Legal-hold object model.
+
+P1 - REQUIRED BEFORE FULL ELECTION-NIGHT REHEARSAL
+
+- Second trust anchor;
+- Long-term archive timestamp renewal;
+- Evidence-package access profiles;
+- Certification-support report;
+- Browser WebSocket/SSE capture or documented limitation;
+- CDN/cache analysis;
+- Dual-control workflows;
+- Break-glass process; and
+- External examiner verification test.
+
+P2 - REQUIRED BEFORE PUBLIC PRODUCTION LAUNCH
+
+- Counsel-approved certification templates;
+- Records-retention schedule;
+- Final legal-hold procedure;
+- Research export policy;
+- Public methodology publication;
+- Cryptographic migration runbook; and
+- Independent security and evidence-architecture review.
+
+======================================================================
+20. REQUIRED FOLLOW-ON ARTIFACTS
+======================================================================
+
+The project shall create or revise:
+
+1. Acquisition Bundle Schema
+2. Source Endpoint Authentication Standard
+3. Browser Collection Standard
+4. Sensitive Acquisition Metadata Handling Standard
+5. Evidentiary Audit Logging Standard
+6. P0 Source Configuration Approval Procedure
+7. Signed Release and SBOM Standard
+8. Cryptographic Algorithm Policy
+9. RFC 4998 Evidence Record Evaluation and Decision Record
+10. Dual Trust Anchor Architecture
+11. Correction and Revision Taxonomy
+12. Missing Data Semantics Specification
+13. National Federal Election Canonical Model
+14. Candidate and Candidacy Identity Specification
+15. Legal Hold Procedure
+16. Evidence Package Access-Control Matrix
+17. Certification Support Report Template
+18. Privileged Administrator Threat Model
+19. External Examiner Verification Test Plan
+20. Updated Requirements Traceability Matrix
+
+======================================================================
+21. FREEZE CRITERIA
+======================================================================
+
+Addendum 002 requirements may be considered ready for detailed design when:
+
+- Every P0 requirement has an owner;
+- Every P0 requirement maps to at least one acceptance test;
+- The acquisition-bundle schema is versioned;
+- National election semantics are approved;
+- Source, candidate, candidacy, and contest identities are defined;
+- Missing-data and correction semantics are approved;
+- The RFC 4998 or equivalent long-term evidence-record decision is recorded;
+- Trust boundaries and dual-control roles are documented;
+- Counsel has reviewed the proposed evidence claim boundary; and
+- No unresolved gap permits a routine administrator to silently rewrite all
+  evidence and trust anchors.
+
+======================================================================
+22. CONCLUSION
+======================================================================
+
+Addendum 002 changes the evidentiary architecture from a raw-file archive with
+strong timestamps into a complete acquisition-event system. The protected
+record now includes the identity of the source endpoint, the HTTP or browser
+transaction, the exact content, clock state, software environment, source
+configuration, cryptographic proof, long-term evidence record, custody,
+processing lineage, and external trust anchors.
+
+It also closes national election-model gaps by defining election stages,
+presidential allocation rules, Senate and House edge cases, candidate and
+candidacy identity, missing-data states, and correction classifications.
+
+The system shall preserve a narrow, verifiable factual claim: particular bytes
+were acquired through a documented process, from a recorded endpoint, under a
+recorded system configuration, and were cryptographically preserved and
+independently anchored no later than the recorded attestation time. Broader
+claims require the underlying evidence, context, and appropriate legal or
+factual analysis.
+
+END OF ADDENDUM 002

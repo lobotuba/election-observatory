@@ -1,0 +1,674 @@
+ELECTION INFORMATION OBSERVATORY
+STATE ELECTION AUTHORITY SOURCE MATRIX
+Version: 0.1 Draft
+Date: 2026-11-03
+Project repository: specs/
+
+PURPOSE
+=======
+
+This matrix defines the source-discovery and acquisition baseline for the
+Election Information Observatory (EIO).
+
+TRACKER COVERAGE
+----------------
+1. Nationwide:
+   - President / Vice President
+   - Every U.S. Senate contest
+   - Every U.S. House voting-member contest
+   - Applicable federal delegate and Resident Commissioner contests, represented
+     separately from House voting-member control calculations
+
+2. New Mexico:
+   - Every contest and ballot question published by the New Mexico Secretary of
+     State election-results system
+
+RAW ARCHIVAL COVERAGE
+---------------------
+For every jurisdiction, EIO SHOULD acquire and evidentially preserve the
+complete official statewide election-results dataset when a practical official
+complete export exists, even when only federal contests from that dataset are
+normalized for the national tracker.
+
+Outside New Mexico, non-federal contests may remain archive-only unless needed
+to validate, interpret, or normalize a federal contest.
+
+SOURCE POLICY
+-------------
+- Official government election sources are primary.
+- Each jurisdiction's responsible state-level election authority is the first
+  discovery point.
+- Vendor-hosted election-night reporting is acceptable when officially
+  designated by that authority.
+- Designation evidence must be archived independently from results data.
+- A state-level complete machine-readable export is preferred as the baseline.
+- Supplementary official exports/pages are retained for validation, fields
+  absent from the baseline, turnout, reporting status, presentation
+  reconstruction, and redundancy.
+- County/local sources are not primary by default. They are introduced only if
+  the state-level authority does not publish data required to cover a tracked
+  federal contest or a source-authority investigation requires them.
+- AP, Reuters, CNN, Fox, NBC, CBS, ABC, other media, campaigns, parties, social
+  media, and third-party aggregators are outside the production acquisition
+  scope unless a later specification explicitly adds them.
+
+SOURCE STATUS ENUMERATION
+-------------------------
+NOT_RESEARCHED
+DISCOVERY_IN_PROGRESS
+OFFICIAL_AUTHORITY_IDENTIFIED
+DESIGNATION_EVIDENCE_IDENTIFIED
+RESULTS_SYSTEM_IDENTIFIED
+BASELINE_IDENTIFIED
+SUPPLEMENTARY_IDENTIFIED
+TECHNICALLY_VALIDATED
+LICENSING_REVIEW_REQUIRED
+REHEARSAL_PASSED
+PRODUCTION_APPROVED
+DEGRADED
+RETIRED
+
+BASELINE PREFERENCE ORDER
+-------------------------
+P1  Complete official statewide machine-readable result export/API
+P2  Complete official statewide result web application with underlying
+    machine-readable feed
+P3  Official contest/category exports sufficient to reconstruct complete
+    federal coverage
+P4  Official statewide HTML result pages
+P5  Official county/local feeds required to fill verified state-level gaps
+
+A lower-numbered preference is not automatically selected unless source
+verification, completeness testing, licensing review, and acquisition testing
+all succeed.
+
+MATRIX FIELD DEFINITIONS
+========================
+
+JURISDICTION
+- Two-letter postal abbreviation or territorial abbreviation.
+
+AUTHORITY_NAME
+- Legal/official name of the state-level election authority.
+
+AUTHORITY_TYPE
+- SECRETARY_OF_STATE
+- STATE_BOARD_OF_ELECTIONS
+- ELECTIONS_DIVISION
+- LIEUTENANT_GOVERNOR
+- TERRITORIAL_ELECTION_AUTHORITY
+- OTHER
+
+AUTHORITY_HOME
+- Official government authority homepage.
+
+DESIGNATION_EVIDENCE
+- Official government page(s) linking to or designating the election-results
+  publication system.
+
+RESULTS_SYSTEM
+- Election-night reporting system hostname/URL.
+
+RESULTS_OPERATOR
+- AUTHORITY_HOSTED or identified vendor/platform.
+
+BASELINE_SOURCE
+- Preferred complete official machine-readable source.
+
+BASELINE_FORMAT
+- CSV / JSON / XML / XLSX / TXT / API / HTML / OTHER.
+
+SUPPLEMENTARY_SOURCES
+- Additional official feeds/pages needed for validation or missing fields.
+
+FEDERAL_COVERAGE
+- PRESIDENT, SENATE, HOUSE, DELEGATE/RC as applicable.
+
+GEOGRAPHIC_GRAIN
+- State, district, county, precinct/reporting unit, vote method, etc.
+
+SOURCE_TIMESTAMP
+- Whether/how the source identifies update/generation time.
+
+COMPLETE_EXPORT
+- YES / NO / UNKNOWN.
+
+RAW_ARCHIVE_SCOPE
+- COMPLETE_STATE / FEDERAL_ONLY / MULTI_EXPORT / PAGE_CAPTURE / OTHER.
+
+TRACKER_SCOPE
+- FEDERAL_ONLY or ALL_CONTESTS_NM.
+
+TERMS_STATUS
+- REVIEWED_ALLOWED / REVIEWED_RESTRICTED / LICENSING_UNREVIEWED /
+  CONTRACT_REQUIRED / UNKNOWN.
+
+ROBOTS_STATUS
+- PRESENT_REVIEWED / PRESENT_PENDING / NOT_FOUND / UNKNOWN.
+
+ADAPTER
+- Collector/parser adapter family and version.
+
+EVIDENCE_PROFILE
+- Exact-byte, HTTP/TLS/DNS, trusted timestamp, manifest, browser-bundle, etc.
+
+REHEARSAL_STATUS
+- NOT_RUN / PASS / PASS_WITH_LIMITATIONS / FAIL.
+
+NOTES
+- Gaps, peculiarities, runoffs, RCV, vendor behavior, local-source dependency,
+  or other jurisdiction-specific information.
+
+MASTER JURISDICTION MATRIX
+==========================
+
+NOTE: Except for New Mexico, rows are intentionally NOT_RESEARCHED in this
+initial matrix. Official endpoints, vendors, export formats, terms, robots
+status, and authority designation evidence must be verified from official
+sources before production configuration. This prevents unverified source
+assumptions from entering the evidentiary baseline.
+
+Columns:
+JUR | STATUS | FEDERAL TRACKER COVERAGE | TRACKER DEPTH | SOURCE RESEARCH
+
+AL | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+AK | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+AZ | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+AR | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+CA | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+CO | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+CT | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+DE | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+FL | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+GA | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+HI | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+ID | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+IL | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+IN | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+IA | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+KS | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+KY | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+LA | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+ME | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+MD | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+MA | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+MI | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+MN | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+MS | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+MO | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+MT | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+NE | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+NV | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+NH | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+NJ | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+NM | TECHNICAL_SOURCE_SET_DEFINED | PRESIDENT,SENATE,HOUSE | ALL_CONTESTS_NM | 19-SOURCE PACKAGE DEFINED BELOW
+NY | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+NC | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+ND | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+OH | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+OK | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+OR | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+PA | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+RI | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+SC | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+SD | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+TN | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+TX | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+UT | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+VT | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+VA | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+WA | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+WV | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+WI | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+WY | NOT_RESEARCHED | PRESIDENT,SENATE,HOUSE | FEDERAL_ONLY | REQUIRED
+DC | NOT_RESEARCHED | PRESIDENT,DELEGATE | FEDERAL_ONLY | REQUIRED
+AS | NOT_RESEARCHED | DELEGATE | FEDERAL_ONLY | REQUIRED
+GU | NOT_RESEARCHED | DELEGATE | FEDERAL_ONLY | REQUIRED
+MP | NOT_RESEARCHED | DELEGATE | FEDERAL_ONLY | REQUIRED
+PR | NOT_RESEARCHED | RESIDENT_COMMISSIONER | FEDERAL_ONLY | REQUIRED
+VI | NOT_RESEARCHED | DELEGATE | FEDERAL_ONLY | REQUIRED
+
+FEDERAL CONTROL CALCULATION RULE
+--------------------------------
+- Voting-member U.S. House races feed the 218-majority tracker.
+- DC/territorial delegate and Puerto Rico Resident Commissioner contests are
+  tracked but MUST NOT alter the 218 voting-member majority calculation.
+- Senate control calculations MUST distinguish seats not contested in the
+  current cycle, independents, documented caucusing relationships, and the
+  constitutional role of the Vice President rather than treating all contests
+  as a simple two-party count.
+- Presidential control uses Electoral College allocation rules, including
+  district allocation where applicable.
+
+NEW MEXICO SOURCE PACKAGE
+=========================
+
+Authority:
+- New Mexico Secretary of State
+
+Results system:
+- https://electionresults.sos.nm.gov
+
+Tracker depth:
+- ALL_CONTESTS_NM
+
+Baseline rule:
+- The All Results / STATE CSV is the tracker baseline.
+- Narrower official CSV exports are overlapping official observations used for
+  cross-checks and category validation.
+- Baseline does NOT mean that STATE represents a different legal authority
+  from the narrower exports; all are observations from the same Secretary of
+  State publication system.
+
+A. CSV EXPORTS - 12
+-------------------
+
+NM-CSV-01
+Name: All Results
+Code: STATE
+Endpoint family: resultsCSV.aspx
+Role: BASELINE
+Contents: Every contest
+Parse: YES
+Archive raw: YES
+Tracker: YES, all NM contests
+Cross-check target: All applicable narrower exports
+
+NM-CSV-02
+Name: Federal
+Code: FED
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Federal contests
+Parse: YES
+Archive raw: YES
+Cross-check: STATE federal subset
+
+NM-CSV-03
+Name: Statewide Offices & Questions
+Code: SW
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Statewide offices and questions
+Parse: YES
+Archive raw: YES
+Cross-check: STATE statewide subset
+
+NM-CSV-04
+Name: Legislative
+Code: LGX
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Legislative contests
+Parse: YES
+Archive raw: YES
+Cross-check: STATE legislative subset
+
+NM-CSV-05
+Name: District Judges
+Code: JDX
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: District judges
+Parse: YES
+Archive raw: YES
+Cross-check: STATE district-judge subset
+
+NM-CSV-06
+Name: Public Education Commission
+Code: ECX
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Public Education Commission
+Parse: YES
+Archive raw: YES
+Cross-check: STATE PEC subset
+
+NM-CSV-07
+Name: Metropolitan Court Judges
+Code: JMC
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Metropolitan Court judges
+Parse: YES
+Archive raw: YES
+Cross-check: STATE metropolitan-court subset
+
+NM-CSV-08
+Name: Magistrate Judges
+Code: MGX
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Magistrate judges
+Parse: YES
+Archive raw: YES
+Cross-check: STATE magistrate-judge subset
+
+NM-CSV-09
+Name: Offices and Questions by County
+Code: CTY
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Offices and questions by county
+Parse: YES
+Archive raw: YES
+Cross-check: STATE county subset
+
+NM-CSV-10
+Name: Municipal
+Code: MUX
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Municipal contests
+Parse: YES
+Archive raw: YES
+Cross-check: STATE municipal subset
+
+NM-CSV-11
+Name: College District Questions
+Code: CLX
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: College district questions
+Parse: YES
+Archive raw: YES
+Cross-check: STATE college-district subset
+
+NM-CSV-12
+Name: Soil & Water Conservation
+Code: SWX
+Endpoint family: resultsCSV.aspx
+Role: SUPPLEMENTARY_OFFICIAL_EXPORT
+Contents: Soil & Water Conservation
+Parse: YES
+Archive raw: YES
+Cross-check: STATE soil/water subset
+
+B. RESULTS WEB PAGES - 5
+-----------------------
+
+NM-WEB-01
+Name: Results-system home page
+Role: OFFICIAL_PRESENTATION / UPDATE_TIME / TURNOUT
+Archive: YES
+Parse: YES, selected fields
+Required fields: displayed update time, turnout, reporting status if present
+
+NM-WEB-02
+Name: Federal results page
+Path: resultsSW.aspx?type=FED
+Role: OFFICIAL_PRESENTATION_CROSSCHECK
+Archive: YES
+Parse: YES
+Cross-check: FED CSV and STATE federal subset
+
+NM-WEB-03
+Name: Statewide results page
+Path: resultsSW.aspx?type=SW
+Role: OFFICIAL_PRESENTATION_CROSSCHECK
+Archive: YES
+Parse: YES
+Cross-check: SW CSV and STATE statewide subset
+
+NM-WEB-04
+Name: Offices-by-county list
+Path: resultsList.aspx?type=cty
+Role: OFFICIAL_PRESENTATION_CROSSCHECK
+Archive: YES
+Parse: YES as required by detailed design
+Cross-check: CTY CSV / STATE county subset
+
+NM-WEB-05
+Name: Voter turnout detail
+Path: VoterTurnoutDetails.aspx
+Role: OFFICIAL_TURNOUT_DETAIL
+Archive: YES
+Parse: YES
+
+C. DESIGNATION EVIDENCE - 2
+---------------------------
+
+NM-DES-01
+Name: New Mexico Secretary of State home page
+Host: www.sos.nm.gov
+Role: SOURCE_AUTHORITY_DESIGNATION_EVIDENCE
+Archive: YES
+Vote parsing: NO
+Purpose: Establish linkage from the governmental authority to the election
+results publication environment.
+
+NM-DES-02
+Name: New Mexico Secretary of State election results page
+Host: www.sos.nm.gov
+Role: SOURCE_AUTHORITY_DESIGNATION_EVIDENCE
+Archive: YES
+Vote parsing: NO
+Purpose: Establish official designation/linkage of the results system.
+
+NM SOURCE COUNT
+---------------
+CSV exports:          12
+Results web pages:     5
+Designation evidence:  2
+TOTAL:                19
+
+NM INTERNAL CONSISTENCY RULE
+----------------------------
+For contests duplicated between STATE and a narrower CSV, compare observations
+only after checking:
+
+1. Acquisition/source-version compatibility;
+2. Contest crosswalk identity;
+3. Candidate/choice identity;
+4. Geographic/reporting-unit scope;
+5. Ballot-method/result-scope compatibility;
+6. Source generation/update time;
+7. Parser version; and
+8. Missing-data state.
+
+Classify the comparison as one of:
+
+CONSISTENT
+VALUE_DIFFERENCE
+MISSING_FROM_STATE
+MISSING_FROM_SUBSET
+SCOPE_DIFFERENCE
+VERSION_MISMATCH
+PARSER_DIFFERENCE
+CROSSWALK_AMBIGUITY
+INDETERMINATE
+
+NM LICENSING/TERMS STATUS
+-------------------------
+Current project classification supplied by project owner:
+- TERMS_STATUS: LICENSING_UNREVIEWED
+- ROBOTS_STATUS: NOT_FOUND
+
+Interpretation rule:
+Absence of identified terms or robots.txt is NOT equivalent to an affirmative
+license or unrestricted permission. Licensing/terms review remains an open
+source-readiness item.
+
+PER-JURISDICTION DISCOVERY RECORD TEMPLATE
+==========================================
+
+Create one completed record for every jurisdiction before production approval:
+
+[JURISDICTION]
+Abbreviation:
+Authority name:
+Authority type:
+Authority home URL:
+Election/results information URL:
+Designation evidence URL(s):
+Designation artifact ID(s):
+Results system URL:
+Results-system operator/vendor:
+Hosting/CDN observations:
+Complete export available: YES / NO / UNKNOWN
+Baseline source name:
+Baseline source URL:
+Baseline format:
+Baseline source version semantics:
+Source-reported update timestamp:
+Federal contests covered:
+Federal completeness verified: YES / NO
+Geographic grain:
+Vote-method grain:
+Turnout available:
+Outstanding-ballot information available:
+Supplementary official source 1:
+Supplementary official source 2:
+Supplementary official source 3:
+County/local dependency: NONE / REQUIRED / UNKNOWN
+County/local dependency explanation:
+Terms status:
+Robots status:
+Authentication required:
+Published rate limits:
+Observed safe acquisition cadence:
+Adapter family:
+Browser capture required:
+Evidence profile:
+Pre-election baseline complete:
+Historical replay complete:
+Live-source rehearsal complete:
+Cross-checks defined:
+Known limitations:
+Open questions:
+Source owner:
+Reviewer:
+Approval status:
+Last verified:
+Next revalidation:
+
+DISCOVERY ACCEPTANCE GATES
+==========================
+
+GATE 1 - AUTHORITY
+[ ] Responsible election authority identified.
+[ ] Authority's official government page archived.
+[ ] Authority-to-results-system designation evidence archived.
+
+GATE 2 - RESULTS SYSTEM
+[ ] Election-night results system identified.
+[ ] Hostnames/endpoints identified.
+[ ] Operator/vendor identified where possible.
+[ ] Endpoint authentication evidence captured.
+
+GATE 3 - BASELINE
+[ ] Complete statewide export/API sought first.
+[ ] Baseline selected using documented preference rule.
+[ ] Baseline covers all tracked federal contests in jurisdiction.
+[ ] Raw complete export retained when practical.
+
+GATE 4 - SUPPLEMENTARY DATA
+[ ] Supplementary official feeds enumerated.
+[ ] Overlap/cross-check behavior documented.
+[ ] Turnout/reporting-status sources documented.
+[ ] County/local gap sources identified if necessary.
+
+GATE 5 - LEGAL/OPERATIONAL
+[ ] Terms reviewed.
+[ ] robots.txt checked and result recorded.
+[ ] Authentication/rate limits documented.
+[ ] Safe acquisition cadence established.
+
+GATE 6 - EVIDENCE
+[ ] Exact acquisition byte layer defined.
+[ ] DNS/TLS/HTTP evidence capture tested.
+[ ] Trusted timestamping passed.
+[ ] Dual anchoring passed.
+[ ] Immutable write/replication passed.
+[ ] Failed acquisition evidence passed.
+
+GATE 7 - NORMALIZATION
+[ ] Federal contest identities mapped.
+[ ] Candidate/candidacy mappings reviewed.
+[ ] Reporting-unit mappings reviewed.
+[ ] Presidential allocation modeled where applicable.
+[ ] Runoff/RCV/special-election semantics tested where applicable.
+
+GATE 8 - REHEARSAL
+[ ] Historical replay passed.
+[ ] Pre-election baseline captured.
+[ ] Live source rehearsal passed.
+[ ] Known limitations recorded.
+[ ] Source approved for production.
+
+NATIONAL COMPLETENESS DASHBOARD REQUIREMENTS
+============================================
+
+The operational system shall be capable of displaying:
+
+Jurisdictions expected
+Jurisdictions authority-verified
+Jurisdictions baseline-identified
+Jurisdictions technically validated
+Jurisdictions rehearsal-passed
+Jurisdictions production-approved
+Jurisdictions healthy
+Jurisdictions degraded/failed
+
+Federal contests expected
+Federal contests configured
+Federal contests actively collecting
+Federal contests healthy
+Federal contests degraded
+Federal contests missing
+Federal contests completed
+
+No national tracker state may silently omit a jurisdiction or contest present
+in the signed Election Coverage Manifest.
+
+SOURCE DISCOVERY WORK ORDER
+===========================
+
+Recommended discovery sequence:
+
+Wave 0 - New Mexico reference implementation
+- Finalize and rehearse the defined 19-source package.
+
+Wave 1 - High-complexity representative jurisdictions
+- Select jurisdictions representing JSON/API, CSV, XML, HTML/browser,
+  vendor-hosted ENR, state/local split, runoff, and RCV patterns.
+
+Wave 2 - Remaining states and District of Columbia
+- Complete all state-level authority and baseline records.
+
+Wave 3 - Territories/delegate jurisdictions
+- Complete AS, GU, MP, PR, and VI records.
+
+Wave 4 - Gap closure
+- Add county/local official feeds only where required to complete a tracked
+  federal contest or validate the state publication.
+
+Wave 5 - National rehearsal
+- Freeze the Election Coverage Manifest.
+- Run complete historical replay.
+- Conduct live-source rehearsal.
+- Resolve or disposition every coverage gap.
+
+MATRIX FREEZE CRITERIA
+======================
+
+The State Election Authority Source Matrix may be frozen for a covered election
+only when:
+
+1. Every expected jurisdiction has an Authority Record.
+2. Every authority has designation evidence.
+3. Every jurisdiction has a selected official results baseline.
+4. Every tracked federal contest maps to at least one approved official result
+   source.
+5. Every source has endpoint and evidence-collection configuration.
+6. Terms/licensing and robots status have been explicitly recorded.
+7. Every baseline has a proven parser/collector or browser acquisition method.
+8. State/local dependencies are known and configured.
+9. All applicable crosswalks are versioned and reviewed.
+10. Every jurisdiction has passed its required rehearsal or has an approved,
+    documented limitation.
+11. The signed Election Coverage Manifest and this matrix agree.
+12. No unresolved gap can cause an expected federal contest to disappear
+    silently from the national tracker.
+
+END OF STATE ELECTION AUTHORITY SOURCE MATRIX
